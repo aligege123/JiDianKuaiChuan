@@ -11,19 +11,33 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        config {
+            storeFile file('D:/GitProject/JiDianKuaiChuan/app/signature')
+            storePassword 'huazai1118'
+            keyAlias 'xiaminglidev'
+            keyPassword 'huazai1118'
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    implementation 'com.android.support:design:26.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha01'
+    implementation 'com.github.bumptech.glide:glide:4.4.0'
+    implementation files('libs/badgeview.jar')
+    implementation files('libs/pinyin4j-2.5.0.jar')
 }

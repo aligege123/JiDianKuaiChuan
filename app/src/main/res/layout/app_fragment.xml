@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_border">
+
+        <TextView
+            android:id="@+id/app_select_all_none"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:text="全选"
+            android:textSize="15dp"
+            android:textColor="@color/soft_blue"/>
+
+    </RelativeLayout>
+
+    <GridView
+        android:id="@+id/app_grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:horizontalSpacing="10dp"
+        android:verticalSpacing="20dp"
+        android:numColumns="4"
+        android:stretchMode="columnWidth"
+        android:listSelector="@drawable/gridview_select"/>
+
+</LinearLayout>
