@@ -28,6 +28,13 @@ public class FileUtils {
         return file.exists();
     }
 
+    public static void mkdirs(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+    }
+
     public static int getFileType(String path) {
         path = path.toLowerCase();
         if (path.endsWith(".doc") || path.endsWith(".docx") || path.endsWith(".xls") || path.endsWith(".xlsx")

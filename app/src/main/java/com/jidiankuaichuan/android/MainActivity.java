@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -26,11 +27,17 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.jidiankuaichuan.android.data.FileBase;
+import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.ui.TransRecordActivity;
 import com.jidiankuaichuan.android.ui.fragment.FileTransFragment;
 import com.jidiankuaichuan.android.ui.fragment.InfoFragment;
 import com.jidiankuaichuan.android.ui.fragment.WebTransFragment;
 import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.ToastUtil;
+
+import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     private HomeFragmentPagerAdapter homeFragmentPagerAdapter;
 
+//    public static Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
@@ -58,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initView();
         checkPermissions();
+        //读取数据库
+        List<FileBase> sendRecordList = LitePal.where("action = ?", "SEND").find(FileBase.class);
+        ChatControler.getInstance().AddFileSendList(sendRecordList);
+        List<FileBase> recvRecordList = LitePal.where("action = ?", "RECV").find(FileBase.class);
+        ChatControler.getInstance().AddFileReceiveList(recvRecordList);
     }
 
     private void initView() {
@@ -119,6 +132,26 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.record_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.record:
+                Intent intent = new Intent(MainActivity.this, TransRecordActivity.class);
+                intent.putExtra("action", "null");
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 
     /**

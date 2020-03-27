@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
+import com.jidiankuaichuan.android.MainActivity;
 import com.jidiankuaichuan.android.R;
 
 public class WebTransFragment extends Fragment {
@@ -14,6 +15,7 @@ public class WebTransFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.web_trans_fragment, container, false);
+//        MainActivity.toolbar.setTitle("网页传");
         return view;
     }
 }

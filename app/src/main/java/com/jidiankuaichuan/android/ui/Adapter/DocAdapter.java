@@ -17,6 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.data.FileBean;
+import com.jidiankuaichuan.android.utils.TransUnitUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,7 @@ public class DocAdapter extends ArrayAdapter<FileBean> {
         } else {
             viewHolder.docName.setText(name);
         }
-        viewHolder.docSize.setText("" + fileBean.size);
+        viewHolder.docSize.setText("" + TransUnitUtil.getPrintSize(fileBean.size));
         viewHolder.docCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -109,5 +110,29 @@ public class DocAdapter extends ArrayAdapter<FileBean> {
             }
         }
         return count;
+    }
+
+    public List<FileBean> getCheckList() {
+        List<FileBean> fileBeans = new ArrayList<>();
+        for (int i = 0; i < checkList.size(); i++) {
+            if(checkList.get(i)) {
+                fileBeans.add(docList.get(i));
+            }
+        }
+        return fileBeans;
+    }
+
+    public void selectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, true);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void unselectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, false);
+        }
+        notifyDataSetChanged();
     }
 }

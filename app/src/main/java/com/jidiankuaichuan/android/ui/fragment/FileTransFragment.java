@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.jidiankuaichuan.android.MainActivity;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.ui.DeviceListActivity;
 import com.jidiankuaichuan.android.ui.FileChooseActivity;
@@ -44,6 +45,7 @@ public class FileTransFragment extends Fragment implements View.OnClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.file_trans_fragment, container, false);
+//        MainActivity.toolbar.setTitle("传送文件");
         sendButton = (ImageButton) view.findViewById(R.id.button_send);
         recvButton = (ImageButton) view.findViewById(R.id.button_recv);
         sendButton.setOnClickListener(this);

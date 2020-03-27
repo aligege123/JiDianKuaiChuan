@@ -145,6 +145,7 @@ public class DeviceListActivity extends AppCompatActivity {
                     break;
                 case Constant.MSG_CONNECT_FAIL:
                     //连接失败
+                    MyLog.d(TAG, "连接失败，对方可能未打开蓝牙");
                     ToastUtil.s("连接失败，对方可能未打开蓝牙");
                     isConnecting = false;
                     break;
@@ -192,6 +193,20 @@ public class DeviceListActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unregisterReceiver(mFindBlueToothReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler = null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mBlueToothUtil.isBlueEnable()) {
+            mBlueToothUtil.closeBlueAsyn();
+        }
+        super.onBackPressed();
     }
 
     private void initView() {
@@ -255,8 +270,10 @@ public class DeviceListActivity extends AppCompatActivity {
                 if (!isConnecting) {
                     ChatControler.getInstance().startChatWith(device, BluetoothAdapter.getDefaultAdapter(), handler);
                     MyLog.d(TAG, "开启客户端");
+                    isConnecting = true;
+                } else {
+                    ToastUtil.s("正在连接");
                 }
-                isConnecting = true;
             }
         });
     }
@@ -266,7 +283,6 @@ public class DeviceListActivity extends AppCompatActivity {
 
         if(item.getItemId()==android.R.id.home){
             mBlueToothUtil.closeBlueAsyn();
-            //finish();
         }
         return super.onOptionsItemSelected(item);
     }

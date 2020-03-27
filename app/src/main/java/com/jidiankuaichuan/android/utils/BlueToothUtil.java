@@ -101,6 +101,9 @@ public class BlueToothUtil {
     /**
      * 判断是否正在搜索
      */
+    public Boolean isDiscovering() {
+        return mBluetoothAdapter.isDiscovering();
+    }
 
     /**
      * 获取已配对的蓝牙设备

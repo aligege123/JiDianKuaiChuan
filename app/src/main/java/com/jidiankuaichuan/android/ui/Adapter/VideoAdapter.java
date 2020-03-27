@@ -34,8 +34,6 @@ public class VideoAdapter extends BaseAdapter {
 
     List<Boolean> checkList = new ArrayList<>();
 
-    List<Video> videoChecked = new ArrayList<>();
-
     private LocalBroadcastManager localBroadcastManager;
 
     public VideoAdapter(Context context, List<Video> videos) {
@@ -145,5 +143,29 @@ public class VideoAdapter extends BaseAdapter {
             }
         }
         return count;
+    }
+
+    public List<Video> getCheckList() {
+        List<Video> videos = new ArrayList<>();
+        for (int i = 0; i < checkList.size(); i++) {
+            if (checkList.get(i)) {
+                videos.add(videoList.get(i));
+            }
+        }
+        return videos;
+    }
+
+    public void selectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, true);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void unselectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, false);
+        }
+        notifyDataSetChanged();
     }
 }

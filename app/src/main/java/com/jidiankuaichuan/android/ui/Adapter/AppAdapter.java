@@ -127,4 +127,28 @@ public class AppAdapter extends BaseAdapter {
         }
         return count;
     }
+
+    public List<AppInfo> getCheckList() {
+        List<AppInfo> appInfos = new ArrayList<>();
+        for (int i = 0; i < checkList.size(); i++) {
+            if (checkList.get(i)) {
+                appInfos.add(appInfoList.get(i));
+            }
+        }
+        return appInfos;
+    }
+
+    public void selectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, true);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void unselectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, false);
+        }
+        notifyDataSetChanged();
+    }
 }

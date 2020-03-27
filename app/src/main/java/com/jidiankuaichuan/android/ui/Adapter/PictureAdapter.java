@@ -17,17 +17,21 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.jidiankuaichuan.android.R;
 import com.bumptech.glide.Glide;
+import com.jidiankuaichuan.android.data.Picture;
+import com.jidiankuaichuan.android.utils.MyLog;
+import com.jidiankuaichuan.android.utils.kuaichuan_utils.OtherFileUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PictureAdapter extends BaseAdapter {
 
+    private static final String TAG = "PictureAdapter";
+
     private List<String> pictureList;
 
     private List<Boolean> checkList = new ArrayList<>();
-
-    private List<String> pictureChecked = new ArrayList<>();
 
     private Context mContext;
 
@@ -127,5 +131,39 @@ public class PictureAdapter extends BaseAdapter {
             }
         }
         return count;
+    }
+
+    public List<Picture> getCheckList() {
+        List<String> paths = new ArrayList<>();
+        List<Picture> pictures = new ArrayList<>();
+        for (int i = 0; i < checkList.size(); i++) {
+            if (checkList.get(i)) {
+                paths.add(pictureList.get(i));
+            }
+        }
+        if (paths.size() > 0) {
+            for (String path : paths) {
+                File file = new File(path);
+                String name = OtherFileUtils.getFileName(path);
+                long size = file.length();
+                Picture picture = new Picture(name, path, size);
+                pictures.add(picture);
+            }
+        }
+        return pictures;
+    }
+
+    public void selectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, true);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void unselectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, false);
+        }
+        notifyDataSetChanged();
     }
 }

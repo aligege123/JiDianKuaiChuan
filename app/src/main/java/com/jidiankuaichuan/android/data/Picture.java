@@ -10,7 +10,7 @@ public class Picture {
     public Picture(String name, String path, long size) {
         this.name = name;
         this.path = path;
-        this.size = size = 0;
+        this.size = size;
     }
 
     public String getName() {

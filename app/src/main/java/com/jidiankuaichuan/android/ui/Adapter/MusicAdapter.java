@@ -101,7 +101,13 @@ public class MusicAdapter extends ArrayAdapter<Music> {
     }
 
     public List<Music> getMusicChecked() {
-        return musicChecked.size() == 0 ? null : musicChecked;
+        List<Music> musicList = new ArrayList<>();
+        for (int i = 0; i < checkList.size(); i++) {
+            if (checkList.get(i) == true) {
+                musicList.add(mMusicList.get(i));
+            }
+        }
+        return musicList;
     }
 
     public void setChecked(int position) {
@@ -123,5 +129,19 @@ public class MusicAdapter extends ArrayAdapter<Music> {
             }
         }
         return count;
+    }
+
+    public void selectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, true);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void unselectAll() {
+        for (int i = 0; i < checkList.size(); i++) {
+            checkList.set(i, false);
+        }
+        notifyDataSetChanged();
     }
 }

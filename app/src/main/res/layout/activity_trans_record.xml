@@ -23,15 +23,19 @@
         app:tabSelectedTextColor="#63B8FF"
         app:tabRippleColor="@color/white"
         app:tabTextAppearance="@style/TabTextSize"
-        app:tabIndicatorHeight="4dp"
-        app:tabMode="scrollable">
+        app:tabIndicatorHeight="2dp"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorColor="@color/soft_blue"
+        app:tabMode="fixed"
+        app:tabGravity="fill">
 
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/file_view_pager"
+        android:id="@+id/record_view_pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:layout_below="@+id/trans_record_tab"
         android:layout_above="@+id/delete_layout"/>
 

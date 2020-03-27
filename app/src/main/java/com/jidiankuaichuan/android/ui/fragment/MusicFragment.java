@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -21,6 +22,8 @@ public class MusicFragment extends Fragment {
     private List<Music> musicList;
 
     private MusicAdapter musicAdapter;
+
+    private TextView selectText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -38,10 +41,33 @@ public class MusicFragment extends Fragment {
                 adapter.setChecked(position);
             }
         });
+
+        selectText = (TextView) view.findViewById(R.id.music_select_all_none);
+        selectText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String text = selectText.getText().toString();
+                switch (text) {
+                    case "全选":
+                        musicAdapter.selectAll();
+                        selectText.setText("全不选");
+                        break;
+                    case "全不选":
+                        musicAdapter.unselectAll();
+                        selectText.setText("全选");
+                        break;
+                    default:
+                }
+            }
+        });
         return view;
     }
 
     public int getSelectedCount() {
         return musicAdapter == null ? 0 : musicAdapter.getSelectedCount();
+    }
+
+    public List<Music> getCheckList() {
+        return musicAdapter.getMusicChecked();
     }
 }

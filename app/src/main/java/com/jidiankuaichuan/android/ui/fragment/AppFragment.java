@@ -6,12 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.callback.FileChooseCallback;
 import com.jidiankuaichuan.android.data.AppInfo;
+import com.jidiankuaichuan.android.data.FileBase;
 import com.jidiankuaichuan.android.ui.Adapter.AppAdapter;
 import com.jidiankuaichuan.android.utils.FileManager;
 
@@ -23,6 +25,8 @@ public class AppFragment extends Fragment {
     private List<AppInfo> appInfoList = new ArrayList<>();
 
     private AppAdapter appAdapter;
+
+    private TextView selectText;
 
 //    private FileChooseCallback fileChooseCallback;
 //
@@ -50,10 +54,33 @@ public class AppFragment extends Fragment {
 //                fileChooseCallback.noitifyFileSeletedNumberChanged();
             }
         });
+
+        selectText = (TextView) view.findViewById(R.id.app_select_all_none);
+        selectText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String text = selectText.getText().toString();
+                switch (text) {
+                    case "全选":
+                        appAdapter.selectAll();
+                        selectText.setText("全不选");
+                        break;
+                    case "全不选":
+                        appAdapter.unselectAll();
+                        selectText.setText("全选");
+                        break;
+                    default:
+                }
+            }
+        });
         return view;
     }
 
     public int getSelectedCount() {
         return appAdapter == null ? 0 : appAdapter.getSelectedCount();
+    }
+
+    public List<AppInfo> getCheckList() {
+        return appAdapter.getCheckList();
     }
 }
