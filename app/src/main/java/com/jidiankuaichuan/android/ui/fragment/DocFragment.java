@@ -71,6 +71,15 @@ public class DocFragment extends Fragment {
     }
 
     public List<FileBean> getCheckList() {
-        return docAdapter.getCheckList();
+        if (docAdapter != null) {
+            return docAdapter.getCheckList();
+        }
+        return null;
+    }
+
+    public void clearSelected() {
+        if (docAdapter != null) {
+            docAdapter.unselectAll();
+        }
     }
 }

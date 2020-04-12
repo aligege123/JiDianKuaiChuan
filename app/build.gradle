@@ -39,6 +39,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha01'
     implementation 'com.github.bumptech.glide:glide:4.4.0'
     implementation 'org.litepal.android:java:3.0.0'
+    implementation 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     implementation files('libs/badgeview.jar')
     implementation files('libs/pinyin4j-2.5.0.jar')
 }

@@ -1,6 +1,7 @@
 package com.jidiankuaichuan.android.ui;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
@@ -9,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -19,13 +21,14 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.jidiankuaichuan.android.Constant;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.threads.controler.ChatControler;
 import com.jidiankuaichuan.android.ui.Adapter.MatchedAdapter;
 import com.jidiankuaichuan.android.ui.Adapter.NonMatchedAdapter;
-import com.jidiankuaichuan.android.utils.BlueToothUtil;
+import com.jidiankuaichuan.android.utils.BlueToothUtils;
 import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.ToastUtil;
 
@@ -37,7 +40,7 @@ public class DeviceListActivity extends AppCompatActivity {
 
     private static final String TAG = "DeviceListActivity";
 
-    private final int OPENBLUETOOTH = 0x1;
+    private final int OPENBLUETOOTH = 0x88;
 
     private int found = 0;
 
@@ -48,8 +51,6 @@ public class DeviceListActivity extends AppCompatActivity {
     private MatchedAdapter matchedAdapter;
 
     private NonMatchedAdapter nonMatchedAdapter;
-
-    private BlueToothUtil mBlueToothUtil = new BlueToothUtil();
 
     private Button button;
 
@@ -87,7 +88,7 @@ public class DeviceListActivity extends AppCompatActivity {
                     //ToastUtil.s("发现设备");
                     found = 1;
                     //获取已配对蓝牙设备
-                    Set<BluetoothDevice> devices = mBlueToothUtil.getBondedDevices();
+                    Set<BluetoothDevice> devices = BlueToothUtils.getInstance().getBondedDevices();
                     matchedList.clear();
                     for (BluetoothDevice bonddevice : devices) {
                         matchedList.add(bonddevice);
@@ -153,14 +154,15 @@ public class DeviceListActivity extends AppCompatActivity {
         }
     };
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
         initView();
         //打开蓝牙
-        if (!mBlueToothUtil.isBlueEnable()) {
-            mBlueToothUtil.openBlueSync(DeviceListActivity.this, OPENBLUETOOTH);
+        if (!BlueToothUtils.getInstance().isBlueEnable()) {
+            BlueToothUtils.getInstance().openBlueSync(DeviceListActivity.this, OPENBLUETOOTH);
         }
     }
 
@@ -203,13 +205,19 @@ public class DeviceListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mBlueToothUtil.isBlueEnable()) {
-            mBlueToothUtil.closeBlueAsyn();
+        if (BlueToothUtils.getInstance().isBlueEnable()) {
+            BlueToothUtils.getInstance().closeBlueAsyn();
         }
         super.onBackPressed();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initView() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        }
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.white));// set status background white
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_search);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -233,11 +241,11 @@ public class DeviceListActivity extends AppCompatActivity {
                 String text = button.getText().toString();
                 if ("扫描".equals(text)) {
                     //开始搜索设备
-                    mBlueToothUtil.discover();
+                    BlueToothUtils.getInstance().discover();
                     button.setText("停止");
                 } else {
                     //停止
-                    mBlueToothUtil.cancelDiscover();
+                    BlueToothUtils.getInstance().cancelDiscover();
                     button.setText("扫描");
                 }
             }
@@ -249,11 +257,11 @@ public class DeviceListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //ToastUtil.s("配对中...");
                 String adress = nonMatchList.get(position).getAddress();
-                mBlueToothUtil.cancelDiscover();
+                BlueToothUtils.getInstance().cancelDiscover();
 
                 try {
-                    BluetoothDevice remoteDevice = mBlueToothUtil.getRemoteDevice(adress);
-                    if(mBlueToothUtil.createBond(remoteDevice.getClass(), remoteDevice)) {
+                    BluetoothDevice remoteDevice = BlueToothUtils.getInstance().getRemoteDevice(adress);
+                    if(BlueToothUtils.getInstance().createBond(remoteDevice.getClass(), remoteDevice)) {
                         MyLog.d(TAG,"可以配对");
                     }
                 } catch (Exception e) {
@@ -282,8 +290,21 @@ public class DeviceListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if(item.getItemId()==android.R.id.home){
-            mBlueToothUtil.closeBlueAsyn();
+            BlueToothUtils.getInstance().closeBlueAsyn();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case OPENBLUETOOTH:
+                if (!BlueToothUtils.getInstance().isBlueEnable()) {
+                    finish();
+                }
+                break;
+            default:
+        }
     }
 }

@@ -3,11 +3,19 @@ package com.jidiankuaichuan.android.threads;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 
 import com.jidiankuaichuan.android.Constant;
+import com.jidiankuaichuan.android.MyApplication;
 import com.jidiankuaichuan.android.data.FileBase;
+import com.jidiankuaichuan.android.service.FileTransService;
+import com.jidiankuaichuan.android.utils.BlueToothUtils;
 import com.jidiankuaichuan.android.utils.MyLog;
 
 import org.json.JSONException;
@@ -43,6 +51,20 @@ public class ConnectThread extends Thread{
     //锁
     private Object lock = new Object();
 
+//    private FileTransService.FileTransBinder fileTransBinder;
+//
+//    private ServiceConnection connection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            fileTransBinder = (FileTransService.FileTransBinder) service;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//
+//        }
+//    };
+
     public ConnectThread(BluetoothDevice device, BluetoothAdapter bluetoothAdapter, Handler mUIhandler) {
         BluetoothSocket tmp = null;
         try {
@@ -55,6 +77,10 @@ public class ConnectThread extends Thread{
         mBluetoothAdapter = bluetoothAdapter;
         mHandler = mUIhandler;
         mSocket = tmp;
+
+//        Intent intent = new Intent(MyApplication.getContext(), FileTransService.class);
+//        MyApplication.getContext().startService(intent);
+//        MyApplication.getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     public void setHandler(Handler handler) {
@@ -81,7 +107,9 @@ public class ConnectThread extends Thread{
     public void run() {
         super.run();
         // 关闭正在发现设备.(如果此时又在查找设备，又在发送数据，会有冲突，影响传输效率)
-        mBluetoothAdapter.cancelDiscovery();
+        if (BlueToothUtils.getInstance().isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
+        }
         try {
             // 连接服务器
             mSocket.connect();
@@ -105,6 +133,7 @@ public class ConnectThread extends Thread{
             MyLog.d(TAG, "开启客户端接收线程");
             mReceiveThread = new ReceiveThread(mSocket, handler);
             mReceiveThread.start();
+//            fileTransBinder.startReceive(mReceiveThread);
         }
     }
 
@@ -130,6 +159,7 @@ public class ConnectThread extends Thread{
             if (mSocket.isConnected()) {
                 mSocket.close();
             }
+//            MyApplication.getContext().unbindService(connection);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,6 +194,7 @@ public class ConnectThread extends Thread{
             SendThread sendThread = new SendThread(mSocket, fileBase, lock);
             sendThreadList.add(sendThread);
             sendThread.start();
+//            fileTransBinder.startSend(sendThread);
         }
     }
 

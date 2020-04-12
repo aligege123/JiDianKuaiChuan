@@ -1,37 +1,19 @@
 package com.jidiankuaichuan.android.ui.fragment;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.jidiankuaichuan.android.MainActivity;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.ui.DeviceListActivity;
 import com.jidiankuaichuan.android.ui.FileChooseActivity;
-import com.jidiankuaichuan.android.utils.BlueToothUtil;
-import com.jidiankuaichuan.android.utils.MyLog;
+import com.jidiankuaichuan.android.utils.BlueToothUtils;
 import com.jidiankuaichuan.android.utils.ToastUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FileTransFragment extends Fragment implements View.OnClickListener{
 
@@ -60,8 +42,7 @@ public class FileTransFragment extends Fragment implements View.OnClickListener{
         switch (v.getId()) {
             case R.id.button_send:
                 //请求权限，开启蓝牙
-                BlueToothUtil blueToothUtil = new BlueToothUtil();
-                if (blueToothUtil.isSupportBlue()) {
+                if (BlueToothUtils.getInstance().isSupportBlue()) {
                     Intent intent = new Intent(getActivity(), DeviceListActivity.class);
                     startActivity(intent);
                 } else {

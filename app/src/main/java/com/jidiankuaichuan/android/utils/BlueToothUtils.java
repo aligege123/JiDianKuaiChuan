@@ -5,19 +5,27 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.Set;
 
-public class BlueToothUtil {
+public class BlueToothUtils {
 
     private static final String TAG = "BlueToothUtil";
 
+    private static BlueToothUtils instance;
+
     private BluetoothAdapter mBluetoothAdapter;
 
-    public BlueToothUtil() {
+    private BlueToothUtils() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+    public static BlueToothUtils getInstance() {
+        if (instance == null) {
+            instance = new BlueToothUtils();
+        }
+        return instance;
     }
 
     /**
@@ -129,7 +137,7 @@ public class BlueToothUtil {
     /**
      * 与设备配对
      */
-    static public boolean createBond(Class btClass,BluetoothDevice btDevice) throws Exception {
+    public boolean createBond(Class btClass,BluetoothDevice btDevice) throws Exception {
         Method createBondMethod = btClass.getMethod("createBond");
         Boolean returnValue = (Boolean) createBondMethod.invoke(btDevice);
         return returnValue.booleanValue();
@@ -138,7 +146,7 @@ public class BlueToothUtil {
     /**
      * 与设备解除配对
      */
-    static public boolean removeBond(Class btClass,BluetoothDevice btDevice) throws Exception {
+    public boolean removeBond(Class btClass,BluetoothDevice btDevice) throws Exception {
         Method removeBondMethod = btClass.getMethod("removeBond");
         Boolean returnValue = (Boolean) removeBondMethod.invoke(btDevice);
         return returnValue.booleanValue();

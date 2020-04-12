@@ -1,5 +1,6 @@
 package com.jidiankuaichuan.android.ui.fragment;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jidiankuaichuan.android.R;
@@ -27,12 +30,6 @@ public class AppFragment extends Fragment {
     private AppAdapter appAdapter;
 
     private TextView selectText;
-
-//    private FileChooseCallback fileChooseCallback;
-//
-//    public AppFragment(FileChooseCallback fileChooseCallback) {
-//        this.fileChooseCallback = fileChooseCallback;
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
@@ -81,6 +78,12 @@ public class AppFragment extends Fragment {
     }
 
     public List<AppInfo> getCheckList() {
-        return appAdapter.getCheckList();
+        return appAdapter == null ? null : appAdapter.getCheckList();
+    }
+
+    public void clearSelected() {
+        if (appAdapter != null) {
+            appAdapter.unselectAll();
+        }
     }
 }

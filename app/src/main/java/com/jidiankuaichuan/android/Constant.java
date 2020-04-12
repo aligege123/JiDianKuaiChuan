@@ -14,7 +14,7 @@ public class Constant {
 
     public static int imageId = 1;
 
-    public static String CONNECTION_UUID = "00001102-0000-1000-8000-00805F9B34FB";
+    public static String CONNECTION_UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
     public static final int MSG_ERROR = -1;
 
@@ -34,15 +34,17 @@ public class Constant {
 
     public static final int FLAG_CLOSE = 7;
 
-    public static final String APK_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/极点快传/apk/";
+    public static final int MSG_RECV_ERROR = 8;
 
-    public static final String PICTURE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/极点快传/image/";
+    public static final String APK_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/app/";
 
-    public static final String MUSIC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/极点快传/mp3/";
+    public static final String PICTURE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/image/";
 
-    public static final String VIDEO_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/极点快传/mp4/";
+    public static final String MUSIC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/mp3/";
 
-    public static final String OTHER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/极点快传/files/";
+    public static final String VIDEO_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/mp4/";
+
+    public static final String OTHER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/files/";
 
     public static SendRecordFragment sendRecordFragment = new SendRecordFragment();
 

@@ -68,6 +68,15 @@ public class MusicFragment extends Fragment {
     }
 
     public List<Music> getCheckList() {
-        return musicAdapter.getMusicChecked();
+        if (musicAdapter != null) {
+            return musicAdapter.getMusicChecked();
+        }
+        return null;
+    }
+
+    public void clearSelected() {
+        if (musicAdapter != null) {
+            musicAdapter.unselectAll();
+        }
     }
 }

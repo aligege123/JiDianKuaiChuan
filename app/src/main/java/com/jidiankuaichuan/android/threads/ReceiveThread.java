@@ -113,7 +113,20 @@ public class ReceiveThread extends Thread{
                     case Constant.FLAG_FILE:
                         isReceiving = true;
                         try {
-                            String str = in.readUTF();
+                            int headLen = in.readInt();
+                            byte[] headByte = new byte[headLen];
+                            byte readByte = -1;
+                            int headTotal = 0;
+                            while ((readByte = in.readByte()) != -1) {
+                                headByte[headTotal] = readByte;
+                                headTotal++;
+                                if (headTotal == headLen) {
+                                    break;
+                                }
+                            }
+                            String str = new String(headByte, "UTF-8");
+                            MyLog.d(TAG, str);
+//                            String str = in.readUTF();
                             FileBase fileBase = FileBase.toFileBase(str);
                             mFileBase = fileBase;
                             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -133,7 +146,7 @@ public class ReceiveThread extends Thread{
                                 case "image":
                                     filePath = Constant.PICTURE_PATH;
                                     break;
-                                case "apk":
+                                case "app":
                                     filePath = Constant.APK_PATH;
                                     break;
                                 case "mp4":
@@ -184,15 +197,16 @@ public class ReceiveThread extends Thread{
                                     mOnReceiveListener.onFailure(fileBase);
                                     MyLog.d(TAG, "recv thread onFailure() 1");
                                 } else {
-                                    fileBase.setResult(1);
-                                    fileBase.setProgress(fileSize);
+                                    fileBase.setResult(2);
                                 }
                             } else {
                                 if (mOnReceiveListener != null) {
                                     mOnReceiveListener.onSuccess(fileBase);
                                     MyLog.d(TAG, "recv thread onSuccess()");
                                 } else {
-                                    fileBase.setResult(2);
+                                    MyLog.d(TAG, "recv thread success");
+                                    fileBase.setResult(1);
+                                    fileBase.setProgress(fileSize);
                                 }
                             }
                             isReceiving = false;
@@ -212,6 +226,7 @@ public class ReceiveThread extends Thread{
             }
         } catch (Exception e) {
             MyLog.d(TAG, "接收信息异常");
+            mHandler.sendEmptyMessage(Constant.MSG_RECV_ERROR);
             e.printStackTrace();
         }
     }

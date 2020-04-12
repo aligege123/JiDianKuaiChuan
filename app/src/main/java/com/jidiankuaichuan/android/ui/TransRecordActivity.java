@@ -1,17 +1,21 @@
 package com.jidiankuaichuan.android.ui;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 import com.google.android.material.tabs.TabLayout;
@@ -37,6 +41,7 @@ public class TransRecordActivity extends AppCompatActivity {
     private String action;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +50,13 @@ public class TransRecordActivity extends AppCompatActivity {
         initView();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initView() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        }
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.white));// set status background white
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.trans_record_toolbar);
         setSupportActionBar(toolbar);

@@ -66,6 +66,15 @@ public class VideoFragment extends Fragment {
     }
 
     public List<Video> getCheckList() {
-        return videoAdapter.getCheckList();
+        if (videoAdapter != null) {
+            return videoAdapter.getCheckList();
+        }
+        return null;
+    }
+
+    public void clearSelected() {
+        if (videoAdapter != null) {
+            videoAdapter.unselectAll();
+        }
     }
 }

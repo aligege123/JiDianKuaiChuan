@@ -18,19 +18,21 @@
                 android:id="@+id/button_send"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:background="@color/white"
-                android:src="@drawable/send"/>
+                android:layout_above="@+id/send_text"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/button_circle_shape3"
+                android:src="@drawable/send" />
 
             <TextView
+                android:id="@+id/send_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="70dp"
+                android:layout_marginBottom="30dp"
+                android:gravity="center"
                 android:text="发送"
-                android:textSize="20sp"
-                android:textColor="#000"/>
+                android:textColor="#000"
+                android:textSize="20sp" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -48,14 +50,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="30dp"
                 android:src="@drawable/recv"
-                android:background="@color/white"/>
+                android:background="@drawable/button_circle_shape3"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="70dp"
+                android:layout_below="@+id/button_recv"
                 android:text="接收"
                 android:textSize="20sp"
                 android:textColor="#000"/>

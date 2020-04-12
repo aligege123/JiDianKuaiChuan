@@ -81,7 +81,10 @@ public class SendThread extends Thread{
                 FileInputStream in = new FileInputStream(new File(mFileBase.getPath()));
                 DataOutputStream out = new DataOutputStream(mSocket.getOutputStream());
                 out.writeInt(Constant.FLAG_FILE);
-                out.writeUTF(FileBase.toJsonStr(mFileBase));
+                byte[] headBytes = FileBase.toJsonStr(mFileBase).getBytes("UTF-8");
+                out.writeInt(headBytes.length);
+                out.write(headBytes);
+//                out.writeUTF(FileBase.toJsonStr(mFileBase));
 
                 int id = mFileBase.getId();
                 MyLog.d(TAG, mFileBase.getName() + "   " + id);

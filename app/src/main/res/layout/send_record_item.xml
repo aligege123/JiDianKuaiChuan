@@ -20,7 +20,7 @@
 
         <TextView
             android:id="@+id/send_percent"
-            android:layout_width="40dp"
+            android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:layout_marginLeft="10dp"/>
@@ -28,7 +28,7 @@
         <ProgressBar
             android:id="@+id/send_progress_bar"
             android:layout_width="220dp"
-            android:layout_height="8dp"
+            android:layout_height="6dp"
             android:progressDrawable="@drawable/progress_bar_color"
             style="?android:attr/progressBarStyleHorizontal"
             android:max="100"/>
@@ -36,9 +36,11 @@
         <Button
             android:id="@+id/send_cancel"
             android:layout_width="60dp"
-            android:layout_height="35dp"
+            android:layout_height="30dp"
             android:background="@drawable/button_circle_shape2"
+            android:layout_marginLeft="5dp"
             android:text="取消"
+            android:textColor="@color/white"
             android:textSize="15sp"/>
 
         <ImageView

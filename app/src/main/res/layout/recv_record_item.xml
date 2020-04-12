@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants">
 
     <TextView
         android:id="@+id/file_recv_name"
@@ -27,7 +28,7 @@
         <ProgressBar
             android:id="@+id/recv_progress_bar"
             android:layout_width="220dp"
-            android:layout_height="8dp"
+            android:layout_height="6dp"
             android:progressDrawable="@drawable/progress_bar_color"
             style="?android:attr/progressBarStyleHorizontal"
             android:max="100"/>

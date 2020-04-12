@@ -119,6 +119,7 @@ public class SendRecordAdapter extends BaseAdapter {
                         notifyDataSetChanged();
                     }
                 }).create();
+                dialog.show();
             }
         });
         if (percent > 0) {

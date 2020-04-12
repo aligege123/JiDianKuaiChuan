@@ -2,6 +2,7 @@ package com.jidiankuaichuan.android;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
@@ -17,6 +18,9 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -33,12 +37,14 @@ import com.jidiankuaichuan.android.ui.TransRecordActivity;
 import com.jidiankuaichuan.android.ui.fragment.FileTransFragment;
 import com.jidiankuaichuan.android.ui.fragment.InfoFragment;
 import com.jidiankuaichuan.android.ui.fragment.WebTransFragment;
+import com.jidiankuaichuan.android.ui.scroller.FixedSpeedScroller;
 import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.ToastUtil;
 
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
     private HomeFragmentPagerAdapter homeFragmentPagerAdapter;
 
-//    public static Toolbar toolbar;
+    private Toolbar toolbar;
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
@@ -73,10 +80,14 @@ public class MainActivity extends AppCompatActivity {
         ChatControler.getInstance().AddFileReceiveList(recvRecordList);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initView() {
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        }
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.white));// set status background white
         //find View
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toobar_main);
+        toolbar = (Toolbar) findViewById(R.id.toobar_main);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav_view);
 
@@ -104,6 +115,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 bottomNavigationView.getMenu().getItem(position).setChecked(true);
+                switch (position) {
+                    case 0:
+                        toolbar.setTitle("传送文件");
+                        break;
+                    case 1:
+                        toolbar.setTitle("网页传");
+                        break;
+                    case 2:
+                        toolbar.setTitle("设置&帮助");
+                        break;
+                    default:
+                }
             }
 
             @Override
@@ -120,18 +143,30 @@ public class MainActivity extends AppCompatActivity {
                 // 跳转指定页面：Fragment
                 switch (menuId) {
                     case R.id.tab_one:
-                        viewPager.setCurrentItem(0);
+                        viewPager.setCurrentItem(0, false);
                         break;
                     case R.id.tab_two:
-                        viewPager.setCurrentItem(1);
+                        viewPager.setCurrentItem(1, false);
                         break;
                     case R.id.tab_three:
-                        viewPager.setCurrentItem(2);
+                        viewPager.setCurrentItem(2, false);
                         break;
                 }
                 return false;
             }
         });
+
+        viewPager.setOffscreenPageLimit(2);
+        try {
+            Field field = ViewPager.class.getDeclaredField("mScroller");
+            field.setAccessible(true);
+            FixedSpeedScroller scroller = new FixedSpeedScroller(viewPager.getContext(),
+                    new AccelerateInterpolator());
+            field.set(viewPager, scroller);
+            scroller.setmDuration(100);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

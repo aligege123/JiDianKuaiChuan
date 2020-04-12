@@ -21,13 +21,19 @@
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/logo"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/SplashTheme">
-        <activity android:name=".ui.TransRecordActivity"></activity>
+        <service
+            android:name=".service.FileTransService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity android:name=".ui.InfoSettingActivity" />
+        <activity android:name=".ui.TransRecordActivity" />
         <activity android:name=".ui.DeviceListActivity" />
         <activity android:name=".ui.FileChooseActivity" />
         <activity android:name=".ui.InitActivity">
@@ -38,6 +44,16 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.jidiankuaichuan.android.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

@@ -97,6 +97,15 @@ public class PictureFragment extends Fragment {
     }
 
     public List<Picture> getCheckList() {
-        return pictureAdapter.getCheckList();
+        if (pictureAdapter != null) {
+            return pictureAdapter.getCheckList();
+        }
+        return null;
+    }
+
+    public void clearSelected() {
+        if (pictureAdapter != null) {
+            pictureAdapter.unselectAll();
+        }
     }
 }

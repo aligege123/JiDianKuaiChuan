@@ -1,11 +1,14 @@
 package com.jidiankuaichuan.android.ui.fragment;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -17,7 +20,10 @@ import com.jidiankuaichuan.android.threads.ReceiveThread;
 import com.jidiankuaichuan.android.threads.controler.ChatControler;
 import com.jidiankuaichuan.android.ui.Adapter.ReceiveRecordAdapter;
 import com.jidiankuaichuan.android.utils.MyLog;
+import com.jidiankuaichuan.android.utils.OpenFileUtil;
+import com.jidiankuaichuan.android.utils.ToastUtil;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +57,25 @@ public class ReceiveRecordFragment extends Fragment {
         receiveRecordAdapter = new ReceiveRecordAdapter(getContext(), receiveFileList);
         ListView listView = (ListView) view.findViewById(R.id.recv_record_list);
         listView.setAdapter(receiveRecordAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                FileBase fileBase = receiveFileList.get(position);
+                MyLog.d(TAG, "打开文件  " + fileBase.getPath());
+                File file = new File(fileBase.getPath());
+
+                if (file.exists()) {
+                    if (fileBase.getType().equals("app")) {
+                        ToastUtil.s("暂不支持打开该类型的文件");
+                    } else {
+                        Intent intent = OpenFileUtil.openFile(fileBase.getPath(), getContext());
+                        startActivity(intent);
+                    }
+                } else {
+                    ToastUtil.s("文件不存在或已被删除");
+                }
+            }
+        });
 
         ChatControler.getInstance().setOnReceiveListener(new ReceiveThread.OnReceiveListener() {
             @Override
