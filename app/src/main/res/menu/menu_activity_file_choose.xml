@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/trans_record"
+        android:title="@string/file_record"
+        android:icon="@drawable/record"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/locate"
+        android:title="@string/bediscover"/>
+    <item
+        android:id="@+id/my_address"
+        android:title="@string/mac_address"/>
+</menu>

@@ -32,14 +32,15 @@ public class ConnectThread extends Thread{
     private static final String TAG = "ConnectThread";
 
     private static final UUID MY_UUID = UUID.fromString(Constant.CONNECTION_UUID);
-    /** 客户端socket*/
+
     private BluetoothSocket mSocket;
-    /** 要连接的设备*/
+
     private BluetoothDevice mDevice;
+
     private BluetoothAdapter mBluetoothAdapter;
-    /** 主线程通信的Handler*/
+
     private Handler mHandler;
-    /** 发送和接收数据的处理类*/
+
     private ReceiveThread mReceiveThread;
 
     private List<SendThread> sendThreadList = new ArrayList<>();
@@ -48,27 +49,12 @@ public class ConnectThread extends Thread{
         return sendThreadList;
     }
 
-    //锁
-    private Object lock = new Object();
-
-//    private FileTransService.FileTransBinder fileTransBinder;
-//
-//    private ServiceConnection connection = new ServiceConnection() {
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder service) {
-//            fileTransBinder = (FileTransService.FileTransBinder) service;
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//
-//        }
-//    };
+    private final Object lock = new Object();
 
     public ConnectThread(BluetoothDevice device, BluetoothAdapter bluetoothAdapter, Handler mUIhandler) {
         BluetoothSocket tmp = null;
         try {
-            // 创建客户端Socket
+            // create client socket
             tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,10 +63,6 @@ public class ConnectThread extends Thread{
         mBluetoothAdapter = bluetoothAdapter;
         mHandler = mUIhandler;
         mSocket = tmp;
-
-//        Intent intent = new Intent(MyApplication.getContext(), FileTransService.class);
-//        MyApplication.getContext().startService(intent);
-//        MyApplication.getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     public void setHandler(Handler handler) {
@@ -106,20 +88,19 @@ public class ConnectThread extends Thread{
     @Override
     public void run() {
         super.run();
-        // 关闭正在发现设备.(如果此时又在查找设备，又在发送数据，会有冲突，影响传输效率)
+        // cancel discovering
         if (BlueToothUtils.getInstance().isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery();
         }
         try {
-            // 连接服务器
             mSocket.connect();
         } catch (IOException e) {
-            // 连接异常就关闭
             e.printStackTrace();
             mHandler.sendEmptyMessage(Constant.MSG_CONNECT_FAIL);
             try {
                 mSocket.close();
             } catch (IOException e1) {
+                e1.printStackTrace();
             }
             return;
         }
@@ -127,18 +108,16 @@ public class ConnectThread extends Thread{
     }
 
     public void createReceiveThread(Handler handler) {
-
         if (isConnected()) {
-            // 新建一个线程进行通讯,不然会发现线程堵塞
+            // new a ReceiveThread
             MyLog.d(TAG, "开启客户端接收线程");
             mReceiveThread = new ReceiveThread(mSocket, handler);
             mReceiveThread.start();
-//            fileTransBinder.startReceive(mReceiveThread);
         }
     }
 
     /**
-     * 当前设备与指定设备是否连接
+     * if is connected
      */
     public boolean isConnected() {
         boolean connected = (mSocket != null && mSocket.isConnected());
@@ -148,18 +127,16 @@ public class ConnectThread extends Thread{
     }
 
     /**
-     * 关闭当前客户端
+     * quit
      */
     public void cancel() {
         try {
-//            mReceiveThread.close();
             if (mReceiveThread != null) {
                 mReceiveThread = null;
             }
             if (mSocket.isConnected()) {
                 mSocket.close();
             }
-//            MyApplication.getContext().unbindService(connection);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -179,7 +156,6 @@ public class ConnectThread extends Thread{
                 out.writeInt(Constant.FLAG_MSG);
                 out.writeUTF(jsonObject.toString());
                 out.flush();
-//                out.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -187,36 +163,18 @@ public class ConnectThread extends Thread{
     }
 
     /**
-     * 发送文件
+     * send files
      */
     public void sendFile(List<FileBase> fileBaseList) {
         for (final FileBase fileBase : fileBaseList) {
             SendThread sendThread = new SendThread(mSocket, fileBase, lock);
             sendThreadList.add(sendThread);
             sendThread.start();
-//            fileTransBinder.startSend(sendThread);
         }
     }
 
     /**
-     * 发送断开信号
-     */
-    public void sendCloseFlag() {
-        if (mSocket != null && mSocket.isConnected()) {
-            synchronized (lock) {
-                try {
-                    DataOutputStream out = new DataOutputStream(mSocket.getOutputStream());
-                    out.writeInt(Constant.FLAG_CLOSE);
-                    out.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    /**
-     * 判断是否有文件在传输
+     * if has file transporting
      */
     public boolean hasFileTransporting() {
         boolean flag = false;

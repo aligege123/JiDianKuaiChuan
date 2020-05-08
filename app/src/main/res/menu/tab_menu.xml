@@ -7,11 +7,16 @@
 
     <item
         android:id="@+id/tab_two"
+        android:icon="@drawable/ic_chat"
+        android:title="蓝牙聊天"/>
+
+    <item
+        android:id="@+id/tab_three"
         android:icon="@drawable/j1"
         android:title="网页传"/>
 
     <item
-        android:id="@+id/tab_three"
+        android:id="@+id/tab_four"
         android:icon="@drawable/c7"
         android:title="我的"/>
 </menu>

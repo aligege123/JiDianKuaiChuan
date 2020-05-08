@@ -25,7 +25,7 @@ import androidx.core.content.ContextCompat;
 
 import com.jidiankuaichuan.android.Constant;
 import com.jidiankuaichuan.android.R;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
 import com.jidiankuaichuan.android.ui.Adapter.MatchedAdapter;
 import com.jidiankuaichuan.android.ui.Adapter.NonMatchedAdapter;
 import com.jidiankuaichuan.android.utils.BlueToothUtils;
@@ -34,7 +34,6 @@ import com.jidiankuaichuan.android.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class DeviceListActivity extends AppCompatActivity {
 
@@ -64,16 +63,12 @@ public class DeviceListActivity extends AppCompatActivity {
             switch (action){
                 case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
                     MyLog.d(TAG, "开始扫描");
+//                    matchedList.clear();
                     break;
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                     MyLog.d(TAG, "结束扫描");
                     ToastUtil.s("结束扫描");
                     button.setText("扫描");
-                    if (found == 0) {
-                        matchedList.clear();
-                        matchedAdapter.notifyDataSetChanged();
-                    }
-                    found = 0;
                     break;
                 case BluetoothAdapter.ACTION_STATE_CHANGED:
                     int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF);
@@ -85,19 +80,22 @@ public class DeviceListActivity extends AppCompatActivity {
                     break;
                 case BluetoothDevice.ACTION_FOUND:
                     MyLog.d(TAG, "发现设备");
-                    //ToastUtil.s("发现设备");
-                    found = 1;
-                    //获取已配对蓝牙设备
-                    Set<BluetoothDevice> devices = BlueToothUtils.getInstance().getBondedDevices();
-                    matchedList.clear();
-                    for (BluetoothDevice bonddevice : devices) {
-                        matchedList.add(bonddevice);
+                    if (device != null && device.getBondState() == BluetoothDevice.BOND_BONDED && matchedList.indexOf(device) == -1) {
+//                        if (device.getName().substring(0, 4).equals("传文件~")) {
+//                            matchedList.add(device);
+//                            matchedAdapter.notifyDataSetChanged();
+//                        }
+                        matchedList.add(device);
                         matchedAdapter.notifyDataSetChanged();
                     }
                     //判断未配对的设备
-                    if (device.getBondState() != BluetoothDevice.BOND_BONDED ) {
+                    if (device != null && device.getBondState() != BluetoothDevice.BOND_BONDED) {
                         String name = device.getName();
-                        if (name != null && ("".equals(name)) == false) {
+//                        if (name != null && !("".equals(name)) && name.substring(0, 4).equals("传文件~")) {
+//                            nonMatchList.add(device);
+//                            nonMatchedAdapter.notifyDataSetChanged();
+//                        }
+                        if (name != null && !("".equals(name))) {
                             nonMatchList.add(device);
                             nonMatchedAdapter.notifyDataSetChanged();
                         }
@@ -108,7 +106,6 @@ public class DeviceListActivity extends AppCompatActivity {
                     switch (device.getBondState()) {
                         case BluetoothDevice.BOND_BONDING:
                             MyLog.d(TAG, "正在配对...");
-                            ToastUtil.s("正在配对...");
                             break;
                         case BluetoothDevice.BOND_BONDED:
                             MyLog.d( TAG, "配对完成");
@@ -122,7 +119,6 @@ public class DeviceListActivity extends AppCompatActivity {
                             break;
                         case BluetoothDevice.BOND_NONE:
                             MyLog.d(TAG, "取消配对");
-                            ToastUtil.s("取消配对");
                         default:
                             break;
                     }
@@ -160,9 +156,12 @@ public class DeviceListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
         initView();
-        //打开蓝牙
+        //open bt
         if (!BlueToothUtils.getInstance().isBlueEnable()) {
             BlueToothUtils.getInstance().openBlueSync(DeviceListActivity.this, OPENBLUETOOTH);
+        } else {
+            //set name
+            BlueToothUtils.getInstance().setName(Constant.deviceName);
         }
     }
 
@@ -187,7 +186,6 @@ public class DeviceListActivity extends AppCompatActivity {
         registerReceiver(mFindBlueToothReceiver ,filter3);
         registerReceiver(mFindBlueToothReceiver ,filter4);
         registerReceiver(mFindBlueToothReceiver, filter5);
-        //registerReceiver(mFindBlueToothReceiver ,filter5);
 
     }
 
@@ -223,11 +221,16 @@ public class DeviceListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+        //已配对设备的listview
+//        Set<BluetoothDevice> devices = BlueToothUtils.getInstance().getBondedDevices();
+//        matchedList.clear();
+//        matchedList.addAll(devices);
         matchedAdapter = new MatchedAdapter(DeviceListActivity.this, R.layout.non_bond_device_item, matchedList);
         ListView matchedListView = (ListView) findViewById(R.id.bonded_list);
         matchedListView.setAdapter(matchedAdapter);
         matchedListView.setDivider(null);
 
+        //未配对设备的listview
         nonMatchedAdapter = new NonMatchedAdapter(DeviceListActivity.this, R.layout.non_bond_device_item, nonMatchList);
         ListView nonMatchedListView = (ListView) findViewById(R.id.non_bonded_list);
         nonMatchedListView.setAdapter(nonMatchedAdapter);
@@ -276,7 +279,7 @@ public class DeviceListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = matchedList.get(position);
                 if (!isConnecting) {
-                    ChatControler.getInstance().startChatWith(device, BluetoothAdapter.getDefaultAdapter(), handler);
+                    ChatController.getInstance().startChatWith(device, BluetoothAdapter.getDefaultAdapter(), handler);
                     MyLog.d(TAG, "开启客户端");
                     isConnecting = true;
                 } else {
@@ -291,6 +294,7 @@ public class DeviceListActivity extends AppCompatActivity {
 
         if(item.getItemId()==android.R.id.home){
             BlueToothUtils.getInstance().closeBlueAsyn();
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -302,6 +306,9 @@ public class DeviceListActivity extends AppCompatActivity {
             case OPENBLUETOOTH:
                 if (!BlueToothUtils.getInstance().isBlueEnable()) {
                     finish();
+                } else {
+                    //set name
+                    BlueToothUtils.getInstance().setName(Constant.deviceName);
                 }
                 break;
             default:

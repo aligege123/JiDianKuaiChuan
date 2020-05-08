@@ -7,7 +7,7 @@ import android.os.Message;
 
 import com.jidiankuaichuan.android.Constant;
 import com.jidiankuaichuan.android.data.FileBase;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
 import com.jidiankuaichuan.android.utils.FileUtils;
 import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.TransUnitUtil;
@@ -16,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,8 +33,6 @@ public class ReceiveThread extends Thread{
     private final InputStream mInputStream;
 
     private FileBase mFileBase;
-
-    private DataInputStream in;
 
     /** 与主线程通信Handler*/
     private Handler mHandler;
@@ -56,15 +53,14 @@ public class ReceiveThread extends Thread{
         mHandler = handler;
 
         InputStream tmpIn = null;
-        OutputStream tmpOut = null;
         try {
             tmpIn = socket.getInputStream();
-            tmpOut = socket.getOutputStream();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         mInputStream = tmpIn;
+
     }
 
     public void setHandler(Handler handler) {
@@ -80,15 +76,9 @@ public class ReceiveThread extends Thread{
         super.run();
         try {
             isRead = true;
-            in = new DataInputStream(mInputStream);
+            DataInputStream in = new DataInputStream(mInputStream);
             while (isRead) {
                 switch (in.readInt()) {
-                    case Constant.FLAG_CLOSE:
-                        if (mHandler != null) {
-                            mHandler.sendEmptyMessage(Constant.FLAG_CLOSE);
-                        }
-                        isRead = false;
-                        break;
                     case Constant.FLAG_MSG:
                         MyLog.d(TAG, "收到设备信息");
                         String jsonStr = in.readUTF();
@@ -138,7 +128,10 @@ public class ReceiveThread extends Thread{
                             } else {
                                 List<FileBase> fileBases = new ArrayList<>();
                                 fileBases.add(fileBase);
-                                ChatControler.getInstance().AddFileReceiveList(fileBases);
+                                ChatController.getInstance().AddFileReceiveList(fileBases);
+                            }
+                            if (mHandler != null) {
+                                mHandler.sendEmptyMessage(Constant.MSG_GOT_DATA);
                             }
                             long fileSize = fileBase.getSize();
                             String filePath = Constant.OTHER_PATH;
@@ -154,6 +147,9 @@ public class ReceiveThread extends Thread{
                                     break;
                                 case "mp3":
                                     filePath = Constant.MUSIC_PATH;
+                                    break;
+                                case "doc":
+                                    filePath = Constant.DOC_PATH;
                                     break;
                                 case "other":
                                     filePath = Constant.OTHER_PATH;
@@ -239,8 +235,11 @@ public class ReceiveThread extends Thread{
     }
 
     public void close() {
-        isRead = false;
-        //TODO 回收资源
+        try {
+            mSokcet.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public interface OnReceiveListener {

@@ -1,6 +1,5 @@
 package com.jidiankuaichuan.android.ui.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.data.FileBase;
 import com.jidiankuaichuan.android.threads.SendThread;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
 import com.jidiankuaichuan.android.ui.Adapter.SendRecordAdapter;
 import com.jidiankuaichuan.android.utils.MyLog;
 
@@ -46,7 +45,7 @@ public class SendRecordFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.send_record_fragment, container, false);
-        sendFileList = ChatControler.getInstance().getFileSendList();
+        sendFileList = ChatController.getInstance().getFileSendList();
         sendRecordAdapter = new SendRecordAdapter(getContext(), sendFileList);
         ListView listView = (ListView) view.findViewById(R.id.send_record_list);
         listView.setAdapter(sendRecordAdapter);
@@ -69,7 +68,7 @@ public class SendRecordFragment extends Fragment {
 //                myHandler.sendEmptyMessage(MSG_CALLBACK);
 //            }
 //        });
-        ChatControler.getInstance().setOnSendListener(new SendThread.OnSendListener() {
+        ChatController.getInstance().setOnSendListener(new SendThread.OnSendListener() {
             @Override
             public void onProgress(int id, long progress) {
                 MyLog.d(TAG, "send fragment onProgress()");

@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jidiankuaichuan.android.R;
@@ -15,15 +16,21 @@ import com.jidiankuaichuan.android.data.Video;
 import com.jidiankuaichuan.android.ui.Adapter.VideoAdapter;
 import com.jidiankuaichuan.android.utils.FileManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VideoFragment extends Fragment {
 
-    private List<Video> mVideoList;
+    private List<Video> mVideoList = new ArrayList<>();
 
     private VideoAdapter videoAdapter;
 
     private TextView selectText;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {

@@ -44,6 +44,8 @@ public class Constant {
 
     public static final String VIDEO_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/mp4/";
 
+    public static final String DOC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/doc/";
+
     public static final String OTHER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/files/";
 
     public static SendRecordFragment sendRecordFragment = new SendRecordFragment();

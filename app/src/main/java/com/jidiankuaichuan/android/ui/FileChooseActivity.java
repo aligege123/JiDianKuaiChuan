@@ -47,18 +47,23 @@ import com.jidiankuaichuan.android.data.Music;
 import com.jidiankuaichuan.android.data.Picture;
 import com.jidiankuaichuan.android.data.Video;
 import com.jidiankuaichuan.android.service.FileTransService;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
+import com.jidiankuaichuan.android.ui.Adapter.DirAdapter;
 import com.jidiankuaichuan.android.ui.dialog.MyDialog;
 import com.jidiankuaichuan.android.ui.fragment.AppFragment;
+import com.jidiankuaichuan.android.ui.fragment.DirFragment;
 import com.jidiankuaichuan.android.ui.fragment.DocFragment;
 import com.jidiankuaichuan.android.ui.fragment.MusicFragment;
 import com.jidiankuaichuan.android.ui.fragment.PictureFragment;
 import com.jidiankuaichuan.android.ui.fragment.VideoFragment;
 import com.jidiankuaichuan.android.utils.BlueToothUtils;
 import com.jidiankuaichuan.android.utils.MyLog;
+import com.jidiankuaichuan.android.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import q.rorbin.badgeview.QBadgeView;
 
 public class FileChooseActivity extends AppCompatActivity implements FileChooseCallback {
 
@@ -98,7 +103,6 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                             //设置设备可被发现
                             BlueToothUtils.getInstance().setCanBeDiscovered(FileChooseActivity.this);
                             //开启接收线程
-//                            ChatControler.getInstance().waitForClient(BluetoothAdapter.getDefaultAdapter(), receiveHandler);
                             fileTransBinder.startServerReceive(receiveHandler);
                             MyLog.d(TAG, "开启服务端2");
                             break;
@@ -122,6 +126,8 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
 
     private DocFragment docFragment;
 
+    private DirFragment dirFragment;
+
     private TabLayout tabLayout;
 
     private ViewPager viewPager;
@@ -138,10 +144,18 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
 
     private FileTransService.FileTransBinder fileTransBinder;
 
+    private Boolean isStop = false;
+
+    private int badgeCount = 0;
+
+    private QBadgeView badgeView;
+
+    private Boolean isConnected = false;
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MyLog.d(TAG, "服务已开启");
+            MyLog.e(TAG, "服务已开启");
             fileTransBinder = (FileTransService.FileTransBinder) service;
             progressDialog.dismiss();
 
@@ -151,21 +165,21 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                 if ("send".equals(state)) {
                     //开启客户端的接收线程
                     fileTransBinder.startClientReceive(sendHandler);
-//                ChatControler.getInstance().startClientReceive(sendHandler);
-                    //开启连接监听线程,时刻监听连接的状态
 
                     //发送设备名和头像
-                    ChatControler.getInstance().sendDeviceInfo(Constant.deviceName, Constant.imageId);
+                    ChatController.getInstance().sendDeviceInfo(Constant.deviceName, Constant.imageId);
                 } else if ("recv".equals(state)) {
                     //设置设备可被发现
                     BlueToothUtils.getInstance().setCanBeDiscovered(FileChooseActivity.this);
                     //开启接收线程
-//                ChatControler.getInstance().waitForClient(BluetoothAdapter.getDefaultAdapter(), receiveHandler);
                     fileTransBinder.startServerReceive(receiveHandler);
-                    MyLog.d(TAG, "开启服务端1");
+                    MyLog.e(TAG, "开启服务端1");
                 }
+
+                //set name
+//                BlueToothUtils.getInstance().setName("传文件~" + Constant.deviceName);
+                BlueToothUtils.getInstance().setName(Constant.deviceName);
             } else {
-                MyLog.d(TAG, "开启蓝牙");
                 BlueToothUtils.getInstance().openBlueSync(FileChooseActivity.this, OPENBLUETOOTH);
             }
         }
@@ -186,6 +200,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                     MyLog.d(TAG, "服务端开启异常");
                     break;
                 case Constant.MSG_DEVICEINFO:
+                    isConnected = true;
                     Bundle bundle = msg.getData();
                     String name = bundle.getString("name");
                     int imageId = bundle.getInt("imageId");
@@ -208,22 +223,26 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                     friendName.setText(name);
 
                     //发送服务端的设备名和头像
-                    if (ChatControler.getInstance().isAlive()) {
-                        ChatControler.getInstance().sendDeviceInfo(Constant.deviceName, Constant.imageId);
+                    if (ChatController.getInstance().isConnected()) {
+                        ChatController.getInstance().sendDeviceInfo(Constant.deviceName, Constant.imageId);
                     }
                     break;
-                case Constant.FLAG_CLOSE:
-                    MyLog.d(TAG, "客户端断开连接");
-                    friendLayout.setVisibility(View.GONE);
-                    waitText.setVisibility(View.VISIBLE);
-                    ChatControler.getInstance().restartAcceptReceive();
-                    break;
                 case Constant.MSG_RECV_ERROR:
-                    //没有收到关闭信号但是却抛出异常
-                    MyLog.d(TAG, "接收线程意外中断");
+                    isConnected = false;
+                    MyLog.d(TAG, "接收线程中断");
                     friendLayout.setVisibility(View.GONE);
                     waitText.setVisibility(View.VISIBLE);
-                    ChatControler.getInstance().restartAcceptReceive();
+                    fileTransBinder.restartAcceptReceive(receiveHandler);
+                    break;
+                case Constant.MSG_GOT_DATA:
+                    MyLog.e(TAG, "got data");
+                    if (!isStop) {
+                        ++badgeCount;
+                        badgeView.setBadgeNumber(badgeCount);
+                    }
+                    break;
+                case Constant.MSG_FINISH_LISTENING:
+                    MyLog.e(TAG, "stop listening");
                     break;
             }
         }
@@ -236,7 +255,8 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case Constant.MSG_DEVICEINFO:
-                    MyLog.d(TAG, "收到服务端设备信息");
+                    isConnected = true;
+                    MyLog.e(TAG, "收到服务端设备信息");
                     Bundle bundle = msg.getData();
                     String name = bundle.getString("name");
                     int imageId = bundle.getInt("imageId");
@@ -258,15 +278,9 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                     }
                     friendName.setText(name);
                     break;
-                case Constant.FLAG_CLOSE:
-                    MyLog.d(TAG, "收到服务端设备断开连接信号");
-                    ChatControler.getInstance().stopChat();
-                    finish();
-                    break;
                 case Constant.MSG_RECV_ERROR:
-                    //没有收到关闭信号接收线程却抛出异常
-                    MyLog.d(TAG, "接收线程意外中断");
-                    ChatControler.getInstance().stopChat();
+                    MyLog.d(TAG, "接收线程中断");
+                    ChatController.getInstance().stopChat();
                     finish();
                     break;
             }
@@ -299,7 +313,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
     @Override
     protected void onStart() {
         super.onStart();
-
+        isStop = false;
         //蓝牙广播
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mBroadcastReceiver, filter);
@@ -312,8 +326,29 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        dirFragment.setOnClickListener(new DirAdapter.OnClickListener() {
+            @Override
+            public void onClick(FileBase fileBase) {
+                if (!isConnected) {
+                    ToastUtil.s("尚未连接任何设备");
+                    return;
+                }
+                List<FileBase> list = new ArrayList<>();
+                list.add(fileBase);
+                fileTransBinder.startSend(list);
+                Intent intent = new Intent(FileChooseActivity.this, TransRecordActivity.class);
+                intent.putExtra("action", "sendFile");
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
+        isStop = true;
         unregisterReceiver(mBroadcastReceiver);
         localBroadcastManager.unregisterReceiver(localReceiver);
     }
@@ -334,6 +369,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+
         tabLayout = (TabLayout) findViewById(R.id.file_tab);
         viewPager = (ViewPager) findViewById(R.id.file_view_pager);
 
@@ -343,6 +379,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
         mTitleList.add("音乐");
         mTitleList.add("视频");
         mTitleList.add("文档");
+        mTitleList.add("存储");
 
         mFileFragmentList = new ArrayList<>();
 
@@ -369,12 +406,14 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
         musicFragment = new MusicFragment();
         videoFragment = new VideoFragment();
         docFragment = new DocFragment();
+        dirFragment = new DirFragment();
 
         mFileFragmentList.add(appFragment);
         mFileFragmentList.add(pictureFragment);
         mFileFragmentList.add(musicFragment);
         mFileFragmentList.add(videoFragment);
         mFileFragmentList.add(docFragment);
+        mFileFragmentList.add(dirFragment);
 
 //        fileFragmentPagerAdapter.notifyDataSetChanged();
         fileFragmentPagerAdapter = new FileFragmentPagerAdapter(getSupportFragmentManager(), mFileFragmentList, mTitleList);
@@ -440,7 +479,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                     for (FileBean fileBean : docCheckList) {
                         FileBase fileBase = new FileBase();
                         fileBase.setName(fileBean.name);
-                        fileBase.setType("other");
+                        fileBase.setType("doc");
                         fileBase.setSize(fileBean.size);
                         fileBase.setPath(fileBean.path);
                         fileBaseList.add(fileBase);
@@ -481,6 +520,11 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                 break;
         }
         myName.setText(Constant.deviceName);
+
+        //badgeview
+        badgeView = new QBadgeView(this);
+        badgeView.bindTarget(myImage);
+        badgeView.setBadgeNumber(0);
     }
 
     @Override
@@ -490,6 +534,10 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
             case OPENBLUETOOTH:
                 if (!BlueToothUtils.getInstance().isBlueEnable()) {
                     finish();
+                } else {
+                    //set name
+//                    BlueToothUtils.getInstance().setName("传文件~" + Constant.deviceName);
+                    BlueToothUtils.getInstance().setName(Constant.deviceName);
                 }
                 break;
             default:
@@ -498,16 +546,15 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.record_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_activity_file_choose, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case android.R.id.home:
-                boolean hasTaskRuning = ChatControler.getInstance().hasFileTransporting();
+                boolean hasTaskRuning = ChatController.getInstance().hasFileTransporting();
                 if (hasTaskRuning) {
                     MyDialog dialog = new MyDialog.Builder(FileChooseActivity.this).setTitle("文件传输中，请稍等")
                             .setNoTextGone().setYesText(null).create();
@@ -517,19 +564,28 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                             .setYesText(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    ChatControler.getInstance().sendCloseFlag();
-                                    ChatControler.getInstance().stopChat();
+                                    ChatController.getInstance().stopChat();
                                     finish();
                                 }
                             }).create();
                     dialog.show();
                 }
                 break;
-            case R.id.record:
+            case R.id.trans_record:
+                //clear badgeview
+                badgeCount = 0;
+                badgeView.setBadgeNumber(0);
                 Intent intent = new Intent(FileChooseActivity.this, TransRecordActivity.class);
                 intent.putExtra("action", "null");
                 startActivity(intent);
                 break;
+            case R.id.locate:
+                BlueToothUtils.getInstance().setCanBeDiscovered(this);
+                break;
+            case R.id.my_address:
+                // TODO show mac address
+                break;
+            default:
         }
         return super.onOptionsItemSelected(item);
     }
@@ -546,7 +602,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
 
     @Override
     public void onBackPressed() {
-        boolean hasTaskRuning = ChatControler.getInstance().hasFileTransporting();
+        boolean hasTaskRuning = ChatController.getInstance().hasFileTransporting();
         if (hasTaskRuning) {
             MyDialog dialog = new MyDialog.Builder(FileChooseActivity.this).setTitle("文件传输中，请稍等")
                     .setNoTextGone().setYesText(null).create();
@@ -556,8 +612,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                     .setYesText(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            ChatControler.getInstance().sendCloseFlag();
-                            ChatControler.getInstance().stopChat();
+                            ChatController.getInstance().stopChat();
                             finish();
                         }
                     }).create();

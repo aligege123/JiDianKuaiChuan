@@ -47,8 +47,6 @@ public class SendThread extends Thread{
 
     private OnSendListener onSendListener;
 
-    private Handler handler;
-
     public SendThread(BluetoothSocket socket, FileBase fileBase, Object lock) {
         mSocket = socket;
         mFileBase = fileBase;
@@ -60,16 +58,12 @@ public class SendThread extends Thread{
         this.onSendListener = onSendListener;
     }
 
-    public void setHandler(Handler handler) {
-        this.handler = handler;
-    }
-
     @Override
     public void run() {
         synchronized (lock) {
             //设置当前任务不执行
             if (mIsStop) {
-                MyLog.d(TAG, mFileBase.getName() + "取消发送");
+                MyLog.e(TAG, mFileBase.getName() + "取消发送");
                 return;
             }
             try {
@@ -87,7 +81,6 @@ public class SendThread extends Thread{
 //                out.writeUTF(FileBase.toJsonStr(mFileBase));
 
                 int id = mFileBase.getId();
-                MyLog.d(TAG, mFileBase.getName() + "   " + id);
 
                 byte[] bytes = new byte[4 * 1024];
                 long total = 0;
@@ -132,7 +125,18 @@ public class SendThread extends Thread{
                 }
             }
         }
-        mFileBase.save();
+        if (mFileBase.getProgress() > 0) {
+            //save record only when progress > 0
+            mFileBase.save();
+        }
+        //delete zip file
+        if (mFileBase.getName().endsWith(".zip")) {
+            File file = new File(mFileBase.getPath());
+            if (file.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
+        }
     }
 
 

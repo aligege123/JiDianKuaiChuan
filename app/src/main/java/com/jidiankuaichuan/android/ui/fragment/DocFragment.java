@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jidiankuaichuan.android.R;
@@ -17,17 +18,23 @@ import com.jidiankuaichuan.android.utils.FileManager;
 import com.jidiankuaichuan.android.utils.FileUtils;
 import com.jidiankuaichuan.android.utils.MyLog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocFragment extends Fragment {
 
     private static final String TAG = "DocFragment";
 
-    private List<FileBean> docList;
+    private List<FileBean> docList = new ArrayList<>();
 
     private DocAdapter docAdapter;
 
     private TextView selectText;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {

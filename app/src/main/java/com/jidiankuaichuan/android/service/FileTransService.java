@@ -11,9 +11,7 @@ import android.os.IBinder;
 import androidx.annotation.NonNull;
 
 import com.jidiankuaichuan.android.data.FileBase;
-import com.jidiankuaichuan.android.threads.ReceiveThread;
-import com.jidiankuaichuan.android.threads.SendThread;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
 
 import java.util.List;
 
@@ -26,15 +24,19 @@ public class FileTransService extends Service {
     public static class FileTransBinder extends Binder {
 
         public void startClientReceive(Handler handler) {
-            ChatControler.getInstance().startClientReceive(handler);
+            ChatController.getInstance().startClientReceive(handler);
         }
 
         public void startServerReceive(Handler handler) {
-            ChatControler.getInstance().waitForClient(BluetoothAdapter.getDefaultAdapter(), handler);
+            ChatController.getInstance().waitForClient(BluetoothAdapter.getDefaultAdapter(), handler);
         }
 
         public void startSend(List<FileBase> fileBaseList) {
-            ChatControler.getInstance().sendFile(fileBaseList);
+            ChatController.getInstance().sendFile(fileBaseList);
+        }
+
+        public void restartAcceptReceive(Handler handler) {
+            ChatController.getInstance().restartAcceptReceive(BluetoothAdapter.getDefaultAdapter(), handler);
         }
     }
 

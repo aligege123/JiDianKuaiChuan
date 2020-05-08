@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.jidiankuaichuan.android">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--
- If your app targets Android 9 or lower, you can declare
+        If your app targets Android 9 or lower, you can declare
          ACCESS_COARSE_LOCATION instead.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -26,11 +27,21 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/SplashTheme">
+        android:theme="@style/SplashTheme"
+        tools:targetApi="q">
+        <activity android:name=".ui.PictureChooseTestActivity"></activity>
+        <activity android:name=".chat.AddFriendActivity" />
+        <activity android:name=".chat.FriendListActivity" />
+        <activity android:name=".chat.ChatActivity" />
+
         <service
             android:name=".service.FileTransService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+        <service
+            android:name=".andserver.CoreService"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity android:name=".ui.InfoSettingActivity" />
         <activity android:name=".ui.TransRecordActivity" />
@@ -44,6 +55,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+        <activity android:name=".andserver.WebServerActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -1,6 +1,7 @@
 package com.jidiankuaichuan.android.ui.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.jidiankuaichuan.android.MyApplication;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.callback.FileChooseCallback;
 import com.jidiankuaichuan.android.data.AppInfo;
@@ -31,24 +33,31 @@ public class AppFragment extends Fragment {
 
     private TextView selectText;
 
+    private ProgressDialog progressDialog;
+
+    private GridView gridView;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.app_fragment, container, false);
+        gridView = (GridView) view.findViewById(R.id.app_grid_view);
         List<AppInfo> appInfos = FileManager.getInstance(getContext()).getAppInfos();
         for (AppInfo appInfo : appInfos) {
             if (appInfo.isUserApp()) {
                 appInfoList.add(appInfo);
             }
         }
-        GridView gridView = (GridView) view.findViewById(R.id.app_grid_view);
-        final AppAdapter adapter = new AppAdapter(getContext(), appInfoList);
-        appAdapter = adapter;
-        gridView.setAdapter(adapter);
+        appAdapter = new AppAdapter(getContext(), appInfoList);
+        gridView.setAdapter(appAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                adapter.setChecked(position);
-//                fileChooseCallback.noitifyFileSeletedNumberChanged();
+                appAdapter.setChecked(position);
             }
         });
 
@@ -85,5 +94,17 @@ public class AppFragment extends Fragment {
         if (appAdapter != null) {
             appAdapter.unselectAll();
         }
+    }
+
+    private void showDialog(Context context) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("界面加载中...");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    private void closeDialog() {
+        progressDialog.dismiss();
     }
 }

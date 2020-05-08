@@ -9,14 +9,13 @@ import com.jidiankuaichuan.android.threads.AcceptThread;
 import com.jidiankuaichuan.android.threads.ConnectThread;
 import com.jidiankuaichuan.android.threads.ReceiveThread;
 import com.jidiankuaichuan.android.threads.SendThread;
-import com.jidiankuaichuan.android.utils.MyLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChatControler {
+public class ChatController {
 
     private static final String TAG = "ChatControler";
 
@@ -32,13 +31,13 @@ public class ChatControler {
 
     private List<FileBase> fileReceiveList = new ArrayList<>();
 
-    private static ChatControler instance;
+    private static ChatController instance;
 
-    private ChatControler() {}
+    private ChatController() {}
 
-    public static synchronized ChatControler getInstance() {
+    public static synchronized ChatController getInstance() {
         if (instance == null) {
-            instance = new ChatControler();
+            instance = new ChatController();
         }
         return instance;
     }
@@ -52,20 +51,20 @@ public class ChatControler {
         this.fileReceiveList.addAll(fileReceiveList);
     }
 
-    //与服务器进行聊天
+    // connect server
     public void startChatWith(BluetoothDevice device, BluetoothAdapter adapter, Handler handler) {
         mConnectThread = new ConnectThread(device, adapter, handler);
         mConnectThread.start();
     }
 
-    //开启客户端接收线程
+    // client start receiving
     public void startClientReceive(Handler handler) {
         if (mConnectThread != null) {
             mConnectThread.createReceiveThread(handler);
         }
     }
 
-    //等待客户端连接
+    // server wait for client
     public void waitForClient(BluetoothAdapter adapter, Handler handler) {
         try {
             mAcceptThread = new AcceptThread(adapter, handler);
@@ -83,7 +82,7 @@ public class ChatControler {
         }
     }
 
-    //关闭线程
+    // break connection
     public void stopChat() {
         if (mAcceptThread != null) {
             mAcceptThread.cancel();
@@ -94,38 +93,36 @@ public class ChatControler {
         }
     }
 
-    //关闭服务端的监听
-    public void restartAcceptReceive() {
+    // restart server
+    public void restartAcceptReceive(BluetoothAdapter adapter, Handler handler) {
         if (mAcceptThread != null) {
-            mAcceptThread.restartReceiveThread();
+            mAcceptThread.cancel();
+            mAcceptThread = null;
+        }
+        try {
+            mAcceptThread = new AcceptThread(adapter, handler);
+            mAcceptThread.start();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    //判断线程是否在运行
-    public Boolean isAlive() {
+    // if thread is alive
+    public boolean isConnected() {
         if (mConnectThread != null) {
-            return mConnectThread.isAlive();
+            return mConnectThread.isConnected();
         } else if (mAcceptThread != null) {
-            return mAcceptThread.isAlive();
+            return mAcceptThread.isConnected();
         }
         return false;
     }
 
-    //发送设备名和头像
+    // send device name and head image
     public void sendDeviceInfo(String name, int headImageId) {
         if (mConnectThread != null) {
             mConnectThread.sendDeviceInfo(name, headImageId);
         } else if (mAcceptThread != null) {
             mAcceptThread.sendDeviceInfo(name, headImageId);
-        }
-    }
-
-    //发送断开连接信号
-    public void sendCloseFlag() {
-        if (mConnectThread != null) {
-            mConnectThread.sendCloseFlag();
-        } else if (mAcceptThread != null) {
-            mAcceptThread.sendCloseFlag();
         }
     }
 
@@ -138,10 +135,8 @@ public class ChatControler {
         fileSendList.addAll(fileBaseList);
         if (mAcceptThread != null) {
             mAcceptThread.sendFile(fileBaseList);
-//            filesToBeSendList.clear();
         } else if (mConnectThread != null) {
             mConnectThread.sendFile(fileBaseList);
-//            filesToBeSendList.clear();
         }
     }
 
@@ -151,7 +146,6 @@ public class ChatControler {
             f.setId(fileSendCount);
             ++fileSendCount;
         }
-//        filesToBeSendList = new ArrayList<>();
         filesToBeSendList.addAll(fileBaseList);
         fileSendList.addAll(fileBaseList);
     }
@@ -201,7 +195,4 @@ public class ChatControler {
         }
         return false;
     }
-
-
-
 }

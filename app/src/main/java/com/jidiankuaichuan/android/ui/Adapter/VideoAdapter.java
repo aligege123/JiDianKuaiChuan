@@ -105,7 +105,7 @@ public class VideoAdapter extends BaseAdapter {
             }
         });
         viewHolder.videoCheck.setChecked(checkList.get(position));
-        if (checkList.get(position) == true) {
+        if (checkList.get(position)) {
             viewHolder.videoCheck.setVisibility(View.VISIBLE);
         } else {
             viewHolder.videoCheck.setVisibility(View.INVISIBLE);
@@ -113,7 +113,7 @@ public class VideoAdapter extends BaseAdapter {
         return view;
     }
 
-    class ViewHolder {
+    static class ViewHolder {
 
         TextView videoName;
 
@@ -125,7 +125,7 @@ public class VideoAdapter extends BaseAdapter {
     }
 
     public void setChecked(int position) {
-        if (checkList.get(position) == true) {
+        if (checkList.get(position)) {
             checkList.set(position, false);
         } else {
             checkList.set(position, true);
@@ -135,10 +135,14 @@ public class VideoAdapter extends BaseAdapter {
         localBroadcastManager.sendBroadcast(intent);
     }
 
+    public Boolean getCheck(int position) {
+        return checkList.get(position);
+    }
+
     public int getSelectedCount() {
         int count = 0;
         for (Boolean i : checkList) {
-            if (i == true) {
+            if (i) {
                 ++count;
             }
         }

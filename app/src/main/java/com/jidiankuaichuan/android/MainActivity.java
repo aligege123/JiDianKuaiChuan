@@ -18,8 +18,6 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 
 import androidx.appcompat.widget.Toolbar;
@@ -32,17 +30,16 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.jidiankuaichuan.android.data.FileBase;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
 import com.jidiankuaichuan.android.ui.TransRecordActivity;
+import com.jidiankuaichuan.android.ui.fragment.ChatFragment;
 import com.jidiankuaichuan.android.ui.fragment.FileTransFragment;
 import com.jidiankuaichuan.android.ui.fragment.InfoFragment;
 import com.jidiankuaichuan.android.ui.fragment.WebTransFragment;
 import com.jidiankuaichuan.android.ui.scroller.FixedSpeedScroller;
-import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.ToastUtil;
 
 import org.litepal.LitePal;
-import org.litepal.crud.LitePalSupport;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -73,11 +70,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initView();
         checkPermissions();
-        //读取数据库
+        //read file record from database
         List<FileBase> sendRecordList = LitePal.where("action = ?", "SEND").find(FileBase.class);
-        ChatControler.getInstance().AddFileSendList(sendRecordList);
+        ChatController.getInstance().AddFileSendList(sendRecordList);
         List<FileBase> recvRecordList = LitePal.where("action = ?", "RECV").find(FileBase.class);
-        ChatControler.getInstance().AddFileReceiveList(recvRecordList);
+        ChatController.getInstance().AddFileReceiveList(recvRecordList);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -98,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         //init fragments
         List<Fragment> homeFragmentList = new ArrayList<>();
         homeFragmentList.add(new FileTransFragment());
+        homeFragmentList.add(new ChatFragment());
         homeFragmentList.add(new WebTransFragment());
         homeFragmentList.add(new InfoFragment());
 
@@ -120,9 +118,12 @@ public class MainActivity extends AppCompatActivity {
                         toolbar.setTitle("传送文件");
                         break;
                     case 1:
-                        toolbar.setTitle("网页传");
+                        toolbar.setTitle("蓝牙聊天");
                         break;
                     case 2:
+                        toolbar.setTitle("网页传");
+                        break;
+                    case 3:
                         toolbar.setTitle("设置&帮助");
                         break;
                     default:
@@ -151,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.tab_three:
                         viewPager.setCurrentItem(2, false);
                         break;
+                    case R.id.tab_four:
+                        viewPager.setCurrentItem(3, false);
+                        break;
                 }
                 return false;
             }
@@ -163,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
             FixedSpeedScroller scroller = new FixedSpeedScroller(viewPager.getContext(),
                     new AccelerateInterpolator());
             field.set(viewPager, scroller);
-            scroller.setmDuration(100);
+            scroller.setmDuration(50);
         } catch (Exception e) {
             e.printStackTrace();
         }

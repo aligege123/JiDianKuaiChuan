@@ -260,7 +260,6 @@ public class FileManager {
             while (c.moveToNext()) {
                 String path = c.getString(c.getColumnIndex(MediaStore.Images.Media.DATA));// 路径
                 if (path != null && FileUtils.isPicFile(path)) {
-                    MyLog.d(TAG, path);
                     imagePathList.add(path);
                 }
             }

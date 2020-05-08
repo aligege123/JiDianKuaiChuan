@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jidiankuaichuan.android.R;
@@ -26,8 +27,6 @@ public class PictureFragment extends Fragment {
 
     private static final String TAG = "PictureFragment";
 
-    private List<ImgFolderBean> imgFolderBeanList;
-
     private List<String> imagePathList = new ArrayList<>();
 
     private PictureAdapter pictureAdapter;
@@ -35,14 +34,19 @@ public class PictureFragment extends Fragment {
     private TextView selectText;
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.picture_fragment, container, false);
-        imgFolderBeanList = FileManager.getInstance(getContext()).getImageFolders();
+        List<ImgFolderBean> imgFolderBeanList = FileManager.getInstance(getContext()).getImageFolders();
         for (ImgFolderBean i : imgFolderBeanList) {
             List<String> paths = FileManager.getInstance(getContext()).getImgListByDir(i.getDir());
             imagePathList.addAll(paths);
         }
-//        imagePathList = FileManager.getInstance(getContext()).getImagePathList();
+        imagePathList = FileManager.getInstance(getContext()).getImagePathList();
         GridView pictureGridView = (GridView) view.findViewById(R.id.picture_grid_view);
         final PictureAdapter adapter = new PictureAdapter(getContext(), imagePathList);
         pictureAdapter = adapter;

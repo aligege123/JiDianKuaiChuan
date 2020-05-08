@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.jidiankuaichuan.android.R;
@@ -15,15 +16,21 @@ import com.jidiankuaichuan.android.data.Music;
 import com.jidiankuaichuan.android.ui.Adapter.MusicAdapter;
 import com.jidiankuaichuan.android.utils.FileManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MusicFragment extends Fragment {
 
-    private List<Music> musicList;
+    private List<Music> musicList = new ArrayList<>();
 
     private MusicAdapter musicAdapter;
 
     private TextView selectText;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {

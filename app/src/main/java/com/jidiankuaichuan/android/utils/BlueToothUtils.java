@@ -71,7 +71,6 @@ public class BlueToothUtils {
         mBluetoothAdapter.disable();
     }
 
-
     /**
      * 设置设备可以被搜索
      */
@@ -92,8 +91,6 @@ public class BlueToothUtils {
     public void discover() {
         if (!mBluetoothAdapter.isDiscovering()) {//判断是否正在搜索
             mBluetoothAdapter.startDiscovery();//开始搜索附近设备
-            ToastUtil.s("正在搜索...");
-
         } else {
             mBluetoothAdapter.cancelDiscovery();//停止搜索
         }
@@ -135,6 +132,13 @@ public class BlueToothUtils {
     }
 
     /**
+     * set BT device name
+     */
+    public void setName(String name) {
+        mBluetoothAdapter.setName(name);
+    }
+
+    /**
      * 与设备配对
      */
     public boolean createBond(Class btClass,BluetoothDevice btDevice) throws Exception {
@@ -151,6 +155,4 @@ public class BlueToothUtils {
         Boolean returnValue = (Boolean) removeBondMethod.invoke(btDevice);
         return returnValue.booleanValue();
     }
-
-
 }

@@ -38,16 +38,16 @@ public class InfoSettingActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_setting);
 
+        imageSelected = Constant.imageId;
         initView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void initView() {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.white));// set status background white
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.white));
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toobar_setting);
         setSupportActionBar(toolbar);
@@ -132,7 +132,7 @@ public class InfoSettingActivity extends AppCompatActivity implements View.OnCli
                     Constant.deviceName = deviceName;
                     SharedPreferences.Editor editor = getSharedPreferences("device_data", Context.MODE_PRIVATE).edit();
                     editor.putString("device_name", deviceName);
-                    editor.putInt("imageId", imageSelected);
+                    editor.putInt("image_id", imageSelected);
                     editor.apply();
                     ToastUtil.s("修改成功");
                 }

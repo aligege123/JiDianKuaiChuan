@@ -48,6 +48,7 @@ public class InitActivity extends AppCompatActivity {
                 FileUtils.mkdirs(Constant.PICTURE_PATH);
                 FileUtils.mkdirs(Constant.VIDEO_PATH);
                 FileUtils.mkdirs(Constant.OTHER_PATH);
+                FileUtils.mkdirs(Constant.DOC_PATH);
             }
             //初始化数据库
             LitePal.getDatabase();
@@ -58,7 +59,7 @@ public class InitActivity extends AppCompatActivity {
             transaction.commit();
         } else {
             //已经初始化过，进入主界面
-            int imageId = pref.getInt("imageId", 0);
+            int imageId = pref.getInt("image_id", 0);
             Constant.deviceName = deviceName;
             Constant.imageId = imageId;
             Intent intent = new Intent(this, MainActivity.class);

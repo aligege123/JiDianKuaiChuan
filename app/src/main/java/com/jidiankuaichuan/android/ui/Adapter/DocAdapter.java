@@ -92,7 +92,7 @@ public class DocAdapter extends ArrayAdapter<FileBean> {
     }
 
     public void setChecked(int position) {
-        if (checkList.get(position) == true) {
+        if (checkList.get(position)) {
             checkList.set(position, false);
         } else {
             checkList.set(position, true);
@@ -102,10 +102,14 @@ public class DocAdapter extends ArrayAdapter<FileBean> {
         localBroadcastManager.sendBroadcast(intent);
     }
 
+    public Boolean getCheck(int position) {
+        return checkList.get(position);
+    }
+
     public int getSelectedCount() {
         int count = 0;
         for (Boolean i : checkList) {
-            if (i == true) {
+            if (i) {
                 ++count;
             }
         }

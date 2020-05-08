@@ -1,7 +1,6 @@
 package com.jidiankuaichuan.android.ui.fragment;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,15 +16,13 @@ import androidx.fragment.app.Fragment;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.data.FileBase;
 import com.jidiankuaichuan.android.threads.ReceiveThread;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
 import com.jidiankuaichuan.android.ui.Adapter.ReceiveRecordAdapter;
 import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.OpenFileUtil;
 import com.jidiankuaichuan.android.utils.ToastUtil;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class ReceiveRecordFragment extends Fragment {
@@ -53,7 +50,7 @@ public class ReceiveRecordFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.recv_record_fragment, container, false);
-        receiveFileList = ChatControler.getInstance().getFileReceiveList();
+        receiveFileList = ChatController.getInstance().getFileReceiveList();
         receiveRecordAdapter = new ReceiveRecordAdapter(getContext(), receiveFileList);
         ListView listView = (ListView) view.findViewById(R.id.recv_record_list);
         listView.setAdapter(receiveRecordAdapter);
@@ -65,7 +62,7 @@ public class ReceiveRecordFragment extends Fragment {
                 File file = new File(fileBase.getPath());
 
                 if (file.exists()) {
-                    if (fileBase.getType().equals("app")) {
+                    if (fileBase.getType().equals("app") || fileBase.getType().equals("other")) {
                         ToastUtil.s("暂不支持打开该类型的文件");
                     } else {
                         Intent intent = OpenFileUtil.openFile(fileBase.getPath(), getContext());
@@ -77,7 +74,7 @@ public class ReceiveRecordFragment extends Fragment {
             }
         });
 
-        ChatControler.getInstance().setOnReceiveListener(new ReceiveThread.OnReceiveListener() {
+        ChatController.getInstance().setOnReceiveListener(new ReceiveThread.OnReceiveListener() {
             @Override
             public void onStart(FileBase fileBase) {
                 receiveFileList.add(fileBase);

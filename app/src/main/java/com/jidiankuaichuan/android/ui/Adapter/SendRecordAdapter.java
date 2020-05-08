@@ -13,16 +13,13 @@ import android.widget.TextView;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.data.FileBase;
 import com.jidiankuaichuan.android.threads.SendThread;
-import com.jidiankuaichuan.android.threads.controler.ChatControler;
+import com.jidiankuaichuan.android.threads.controler.ChatController;
 import com.jidiankuaichuan.android.ui.dialog.MyDialog;
 import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.TransUnitUtil;
 
 import org.litepal.LitePal;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class SendRecordAdapter extends BaseAdapter {
@@ -93,13 +90,16 @@ public class SendRecordAdapter extends BaseAdapter {
                 MyLog.d(TAG, "fileBaseList的长度:" + fileBaseList.size());
                 int id = fileBase.getId();
                 MyLog.d(TAG, "要取消的文件id:" + id);
-                List<SendThread> sendThreads = ChatControler.getInstance().getSendThreadList();
+                List<SendThread> sendThreads = ChatController.getInstance().getSendThreadList();
+                SendThread canceledThread = null;
                 for (SendThread s : sendThreads) {
                     MyLog.d(TAG, "线程里文件的id:" + s.getFileId());
                     if (s.getFileId() == id) {
                         s.stopSend();
+                        canceledThread = s;
                     }
                 }
+                sendThreads.remove(canceledThread);
 //                ChatControler.getInstance().getSendThreadList().get(position).stopSend();
 //                ChatControler.getInstance().getSendThreadList().remove(position);
                 fileBaseList.remove(position);

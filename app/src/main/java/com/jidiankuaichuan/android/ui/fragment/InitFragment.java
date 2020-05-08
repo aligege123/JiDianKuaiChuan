@@ -32,14 +32,6 @@ public class InitFragment extends Fragment implements View.OnClickListener{
 
     private ImageView myImage;
 
-    private ImageView image1;
-
-    private ImageView image2;
-
-    private ImageView image3;
-
-    private ImageView image4;
-
     private int imageSelected = 1;
 
     @Override
@@ -61,7 +53,7 @@ public class InitFragment extends Fragment implements View.OnClickListener{
                 } else {
                     SharedPreferences.Editor editor = getContext().getSharedPreferences("device_data", Context.MODE_PRIVATE).edit();
                     editor.putString("device_name", deviceName);
-                    editor.putInt("imageId", imageSelected);
+                    editor.putInt("image_id", imageSelected);
                     editor.apply();
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);
@@ -85,10 +77,10 @@ public class InitFragment extends Fragment implements View.OnClickListener{
         Toolbar initToobar = (Toolbar) view.findViewById(R.id.toobar_init);
         editText = (EditText) view.findViewById(R.id.set_device_name);
         myImage = (ImageView) view.findViewById(R.id.my_head_image);
-        image1 = (ImageView) view.findViewById(R.id.head_image1);
-        image2 = (ImageView) view.findViewById(R.id.head_image2);
-        image3 = (ImageView) view.findViewById(R.id.head_image3);
-        image4 = (ImageView) view.findViewById(R.id.head_image4);
+        ImageView image1 = (ImageView) view.findViewById(R.id.head_image1);
+        ImageView image2 = (ImageView) view.findViewById(R.id.head_image2);
+        ImageView image3 = (ImageView) view.findViewById(R.id.head_image3);
+        ImageView image4 = (ImageView) view.findViewById(R.id.head_image4);
 
         image1.setOnClickListener(this);
         image2.setOnClickListener(this);

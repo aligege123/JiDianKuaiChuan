@@ -22,19 +22,16 @@ public class AcceptThread extends Thread{
 
     private static final String TAG = "AcceptThread";
 
-    /** 连接的名称*/
     private static final String NAME = "BluetoothClass";
-    /** UUID*/
+
     private static final UUID MY_UUID = UUID.fromString(Constant.CONNECTION_UUID);
-    /** 服务端蓝牙Sokcet*/
+
     private BluetoothServerSocket mServerSocket;
-    private BluetoothAdapter mBluetoothAdapter;
-    /** 线程中通信的更新UI的Handler*/
+
     private Handler mHandler;
-    /** 监听到有客户端连接，新建一个线程单独处理，不然在此线程中会堵塞*/
+
     private ReceiveThread mReceiveThread;
 
-    //管理发送线程
     private List<SendThread> sendThreadList = new ArrayList<>();
 
     public List<SendThread> getSendThreadList() {
@@ -43,17 +40,13 @@ public class AcceptThread extends Thread{
 
     private BluetoothSocket mSocket;
 
-    private boolean isListening = false;
-
-    //锁
+    //lock
     private Object lock = new Object();
 
     public AcceptThread(BluetoothAdapter adapter, Handler handler) throws IOException {
-        mBluetoothAdapter = adapter;
         this.mHandler = handler;
-
-        // 获取服务端蓝牙socket
-        mServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID);
+        // get server socket
+        mServerSocket = adapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID);
     }
 
     public void setHandler(Handler handler) {
@@ -78,68 +71,49 @@ public class AcceptThread extends Thread{
     @Override
     public void run() {
         super.run();
-        // 连接的客户端socket
+        // client socket
         BluetoothSocket socket = null;
-//        isListening = true;
-        // 服务端是不退出的,要一直监听连接进来的客户端，所以是死循环
+        // server don't have to quit
         while (true){
 
             try {
-                // 获取连接的客户端socket
+                // get client socket
                 socket =  mServerSocket.accept();
             } catch (IOException e) {
-                // 通知主线程更新UI, 获取异常
+                // notify activity
                 mHandler.sendEmptyMessage(Constant.MSG_ERROR);
                 e.printStackTrace();
-                // 服务端退出一直监听线程
                 break;
             }
 
             if(socket != null) {
-                // 管理连接的客户端socket
+                close();
+                // manage connection
                 mSocket = socket;
                 manageConnectSocket(socket);
+                break;
             }
         }
     }
 
     /**
-     * 管理连接的客户端socket
+     * manageConnectSocket
      * @param socket
      */
     private void manageConnectSocket(BluetoothSocket socket) {
-        // 只支持同时处理一个连接
-        // mConnectedThread不为空,踢掉之前的客户端
-//        if(mReceiveThread != null) {
-//            mReceiveThread.cancle();
-//        }
-
-        // 新建一个线程,处理客户端发来的数据
+        // new a ReceiveThread
         if (mReceiveThread == null) {
             mReceiveThread = new ReceiveThread(socket, mHandler);
             mReceiveThread.start();
         }
     }
 
-    public void restartReceiveThread() {
-        //关闭上一个thread和socket
-        if (mReceiveThread != null) {
-            mReceiveThread = null;
-            mSocket = null;
-        }
-    }
-
     /**
-     * 断开服务端，结束监听
+     * cancel server listening
      */
-    public void cancel() {
+    private void close() {
         try {
-            if (mReceiveThread != null) {
-                mReceiveThread.close();
-                mReceiveThread = null;
-            }
             mServerSocket.close();
-//            isListening = false;
             mHandler.sendEmptyMessage(Constant.MSG_FINISH_LISTENING);
         } catch (IOException e) {
             e.printStackTrace();
@@ -147,10 +121,24 @@ public class AcceptThread extends Thread{
     }
 
     /**
-     * 发送设备名和头像
+     * break connection
+     */
+    public void cancel() {
+        if (mReceiveThread != null) {
+            mReceiveThread.close();
+            mReceiveThread = null;
+        }
+    }
+
+    public boolean isConnected() {
+        return mSocket != null && mSocket.isConnected();
+    }
+
+    /**
+     * send device name and head image
      */
     public void sendDeviceInfo(String name, int imageId) {
-        MyLog.d(TAG, "服务端发送设备信息");
+        MyLog.e(TAG, "server send info");
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("deviceName", name);
@@ -164,7 +152,6 @@ public class AcceptThread extends Thread{
                 out.writeInt(Constant.FLAG_MSG);
                 out.writeUTF(jsonObject.toString());
                 out.flush();
-//                out.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -172,7 +159,7 @@ public class AcceptThread extends Thread{
     }
 
     /**
-     * 发送文件
+     * send files
      */
     public void sendFile(List<FileBase> fileBaseList) {
         for (FileBase fileBase : fileBaseList) {
@@ -183,24 +170,7 @@ public class AcceptThread extends Thread{
     }
 
     /**
-     * 发送断开信号
-     */
-    public void sendCloseFlag() {
-        if (mSocket != null && mSocket.isConnected()) {
-            synchronized (lock) {
-                try {
-                    DataOutputStream out = new DataOutputStream(mSocket.getOutputStream());
-                    out.writeInt(Constant.FLAG_CLOSE);
-                    out.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    /**
-     * 判断是否有文件在传输
+     * if has file transporting
      */
     public boolean hasFileTransporting() {
         boolean flag = false;
@@ -219,7 +189,5 @@ public class AcceptThread extends Thread{
         }
         return flag;
     }
-
-
 
 }

@@ -92,7 +92,7 @@ public class AppAdapter extends BaseAdapter {
             }
         });
         viewHolder.appCheck.setChecked(checkList.get(position));
-        if (checkList.get(position) == true) {
+        if (checkList.get(position)) {
             viewHolder.appCheck.setVisibility(View.VISIBLE);
         } else {
             viewHolder.appCheck.setVisibility(View.GONE);
@@ -100,7 +100,7 @@ public class AppAdapter extends BaseAdapter {
         return view;
     }
 
-    class ViewHolder {
+    static class ViewHolder {
         ImageView appImage;
         TextView appName;
         TextView appSize;
@@ -108,7 +108,7 @@ public class AppAdapter extends BaseAdapter {
     }
 
     public void setChecked(int position) {
-        if (checkList.get(position) == true) {
+        if (checkList.get(position)) {
             checkList.set(position, false);
         } else {
             checkList.set(position, true);
@@ -118,10 +118,14 @@ public class AppAdapter extends BaseAdapter {
         localBroadcastManager.sendBroadcast(intent);
     }
 
+    public Boolean getCheck(int position) {
+        return checkList.get(position);
+    }
+
     public int getSelectedCount() {
         int count = 0;
         for (Boolean i : checkList) {
-            if (i == true) {
+            if (i) {
                 ++count;
             }
         }
