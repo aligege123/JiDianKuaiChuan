@@ -428,6 +428,10 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!isConnected) {
+                    ToastUtil.s("尚未连接任何设备");
+                    return;
+                }
                 //统计选择的文件
                 List<FileBase> fileBaseList = new ArrayList<>();
                 List<AppInfo> appCheckList = appFragment.getCheckList();
@@ -584,6 +588,12 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
                 break;
             case R.id.my_address:
                 // TODO show mac address
+                MyDialog dialog = new MyDialog.Builder(this)
+                        .setTitle(BlueToothUtils.getInstance().getAddress(this))
+                        .setNoTextGone()
+                        .setEmptyYesText()
+                        .create();
+                dialog.show();
                 break;
             default:
         }
@@ -627,7 +637,7 @@ public class FileChooseActivity extends AppCompatActivity implements FileChooseC
             fileSelectedNumber = appFragment.getSelectedCount() + musicFragment.getSelectedCount() +
                     videoFragment.getSelectedCount() + pictureFragment.getSelectedCount() + docFragment.getSelectedCount();
             numberSelected.setText("" + fileSelectedNumber);
-            if (fileSelectedNumber > 0 && friendLayout.getVisibility() == View.VISIBLE) {
+            if (fileSelectedNumber > 0) {
                 sendButton.setEnabled(true);
                 sendButton.setBackgroundColor(getResources().getColor(R.color.soft_black));
             } else {

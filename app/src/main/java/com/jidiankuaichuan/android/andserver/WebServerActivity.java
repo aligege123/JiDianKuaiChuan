@@ -17,6 +17,7 @@ package com.jidiankuaichuan.android.andserver;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -25,8 +26,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.andserver.controller.DownLoadController;
@@ -38,6 +41,7 @@ import java.util.List;
 /**
  * Created by Zhenjie Yan on 2018/6/9.
  */
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class WebServerActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ServerManager mServerManager;
@@ -54,6 +58,24 @@ public class WebServerActivity extends AppCompatActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_server);
+
+        initView();
+        // AndServer run in the service.
+        mServerManager = new ServerManager(this);
+        mServerManager.register();
+
+        // startServer;
+        mBtnStart.performClick();
+
+        Intent intent = getIntent();
+        DownLoadController.filePath = intent.getStringExtra("file_path");
+    }
+
+    private void initView() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        }
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.white));// set status background white
         Toolbar toolbar = findViewById(R.id.toolbar_web_server);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -67,21 +89,12 @@ public class WebServerActivity extends AppCompatActivity implements View.OnClick
         mBtnStart.setOnClickListener(this);
         mBtnStop.setOnClickListener(this);
         mBtnBrowser.setOnClickListener(this);
-
-        // AndServer run in the service.
-        mServerManager = new ServerManager(this);
-        mServerManager.register();
-
-        // startServer;
-        mBtnStart.performClick();
-
-        Intent intent = getIntent();
-        DownLoadController.filePath = intent.getStringExtra("file_path");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mServerManager.stopServer();
         mServerManager.unRegister();
     }
 

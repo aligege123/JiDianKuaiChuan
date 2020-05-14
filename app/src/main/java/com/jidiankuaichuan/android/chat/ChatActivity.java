@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +28,8 @@ import com.jidiankuaichuan.android.Constant;
 import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.chat.adapter.MsgAdapter;
 import com.jidiankuaichuan.android.chat.model.Msg;
+import com.jidiankuaichuan.android.ui.dialog.MyDialog;
+import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.ToastUtil;
 
 import org.litepal.LitePal;
@@ -54,6 +57,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private String friendName;
 
+    private String friendAddress;
+
     private LocalBroadcastManager localBroadcastManager;
 
     private LocalReceiver localReceiver;
@@ -77,6 +82,7 @@ public class ChatActivity extends AppCompatActivity {
             if (friendName != null && friendName.equals(BlueToothChatControler.getInstance().getFriendName())) {
                 toolbar.setTitle(friendName + "(已连接)");
             }
+            setListener();
         }
     }
 
@@ -86,9 +92,9 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         Intent intent = getIntent();
-        friendName = intent.getStringExtra("friendName");
-        String address = intent.getStringExtra("friendAddress");
-        List<Msg> msgs = LitePal.where("address = ?", address).find(Msg.class);
+        friendName = intent.getStringExtra("friend_name");
+        friendAddress = intent.getStringExtra("friend_address");
+        List<Msg> msgs = LitePal.where("address = ?", friendAddress).find(Msg.class);
         if (msgs != null && msgs.size() > 0) {
             msgList = msgs;
         }
@@ -99,23 +105,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        BlueToothChatControler.getInstance().setOnReceiveListener(new ChatThread.OnReceiveListener() {
-            @Override
-            public void onReceive(String data) {
-                Msg msg = new Msg(data, Msg.TYPE_RECEIVED);
-                msgList.add(msg);
-                mHandler.sendEmptyMessage(MSG_LISTENER_ONRECEIVE);
-            }
-
-            @Override
-            public void onFailure() {
-                if (BlueToothChatControler.state == BlueToothChatControler.STATE_CONNECTED) {
-                    BlueToothChatControler.state = BlueToothChatControler.STATE_CONNECTION_LOST;
-                }
-                mHandler.sendEmptyMessage(MSG_LISTENER_ONFAILURE);
-            }
-        });
-
+        setListener();
         // local broadcast
         IntentFilter localFilter = new IntentFilter("FRIEND_CONNECTED");
         localReceiver = new LocalReceiver();
@@ -157,7 +147,6 @@ public class ChatActivity extends AppCompatActivity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO send message
                 if (BlueToothChatControler.state != BlueToothChatControler.STATE_CONNECTED) {
                     ToastUtil.s("暂不支持离线消息");
                     return;
@@ -180,10 +169,57 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_chat, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
-            finish();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.delete_msg:
+                if (msgList.size() > 0) {
+                    MyDialog dialog = new MyDialog.Builder(this)
+                            .setTitle("删除聊天记录")
+                            .setNoText()
+                            .setYesText(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    LitePal.deleteAll(Msg.class, "address = ?", friendAddress);
+                                    msgList.clear();
+                                    msgAdapter.notifyDataSetChanged();
+                                    msgRecyclerView.scrollToPosition(0);
+                                }
+                            }).create();
+                    dialog.show();
+                } else {
+                    ToastUtil.s("聊天记录为空");
+                }
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void setListener() {
+        BlueToothChatControler.getInstance().setOnReceiveListener(new ChatThread.OnReceiveListener() {
+            @Override
+            public void onReceive(String data) {
+                Msg msg = new Msg(data, Msg.TYPE_RECEIVED);
+                msgList.add(msg);
+                mHandler.sendEmptyMessage(MSG_LISTENER_ONRECEIVE);
+            }
+
+            @Override
+            public void onFailure() {
+                if (BlueToothChatControler.state == BlueToothChatControler.STATE_CONNECTED) {
+                    BlueToothChatControler.state = BlueToothChatControler.STATE_CONNECTION_LOST;
+                }
+                mHandler.sendEmptyMessage(MSG_LISTENER_ONFAILURE);
+            }
+        });
+    }
+
 }

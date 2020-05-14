@@ -53,5 +53,6 @@ dependencies {
     implementation files('libs/badgeview.jar')
     implementation files('libs/pinyin4j-2.5.0.jar')
     implementation 'org.apache.commons:commons-lang3:3.7'
+    implementation 'net.vidageek:mirror:1.6.1'
     annotationProcessor 'com.yanzhenjie.andserver:processor:2.1.0'
 }

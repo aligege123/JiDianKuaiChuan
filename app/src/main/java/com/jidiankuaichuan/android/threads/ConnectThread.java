@@ -181,6 +181,7 @@ public class ConnectThread extends Thread{
         if (sendThreadList.size() > 0) {
             for (SendThread s : sendThreadList) {
                 if (s.isRunning()) {
+                    MyLog.d(TAG, "" + s.getFileId() + "正在运行");
                     flag = true;
                     break;
                 }

@@ -1,11 +1,18 @@
 package com.jidiankuaichuan.android.utils;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
+import net.vidageek.mirror.dsl.Mirror;
+
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -129,6 +136,21 @@ public class BlueToothUtils {
      */
     public int getState() {
         return mBluetoothAdapter.getState();
+    }
+
+    /**
+     * get MAC
+     */
+    public String getAddress(Context context) {
+//        String result = null;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            result = android.provider.Settings.Secure.getString(context.getContentResolver(),
+//                    "bluetooth_address");
+//        } else {
+//            result = mBluetoothAdapter.getAddress();
+//        }
+//        return result;
+        return mBluetoothAdapter.getAddress();
     }
 
     /**

@@ -125,8 +125,8 @@ public class InfoSettingActivity extends AppCompatActivity implements View.OnCli
                 String deviceName = editText.getText().toString();
                 if(deviceName.isEmpty() || deviceName.matches(" *")) {
                     Toast.makeText(this, "设备名称不能为空", Toast.LENGTH_SHORT).show();
-                } else if (deviceName.length() > 15) {
-                    Toast.makeText(this, "设备名称不能超过15个字符", Toast.LENGTH_SHORT).show();
+                } else if (deviceName.length() > 11) {
+                    Toast.makeText(this, "设备名称不能超过11个字符", Toast.LENGTH_SHORT).show();
                 } else {
                     Constant.imageId = imageSelected;
                     Constant.deviceName = deviceName;

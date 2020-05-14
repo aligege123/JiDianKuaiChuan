@@ -12,5 +12,7 @@
         android:id="@+id/refresh"
         android:title="@string/refresh"
         app:showAsAction="always"/>
-
+    <item
+        android:id="@+id/my_address_2"
+        android:title="@string/mac"/>
 </menu>

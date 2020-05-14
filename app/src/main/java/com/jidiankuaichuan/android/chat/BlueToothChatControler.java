@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 
 import com.jidiankuaichuan.android.chat.model.Friend;
+import com.jidiankuaichuan.android.utils.MyLog;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -174,6 +175,7 @@ public class BlueToothChatControler {
 
     public void setOnReceiveListener(ChatThread.OnReceiveListener onReceiveListener) {
         if (mChatAcceptThread != null) {
+            MyLog.e(TAG, "setListener()");
             mChatAcceptThread.setOnReceiveListener(onReceiveListener);
         }
         if (mChatConnectThread != null) {

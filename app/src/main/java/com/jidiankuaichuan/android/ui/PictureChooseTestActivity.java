@@ -1,14 +1,17 @@
 package com.jidiankuaichuan.android.ui;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +31,7 @@ import com.jidiankuaichuan.android.utils.ToastUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class PictureChooseTestActivity extends AppCompatActivity {
 
     private List<String> imagePathList = new ArrayList<>();
@@ -69,7 +73,10 @@ public class PictureChooseTestActivity extends AppCompatActivity {
     }
 
     private void initView() {
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        }
+        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.white));// set status background white
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_select_picture);
         setSupportActionBar(toolbar);

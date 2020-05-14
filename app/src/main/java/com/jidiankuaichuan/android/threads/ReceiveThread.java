@@ -151,6 +151,9 @@ public class ReceiveThread extends Thread{
                                 case "doc":
                                     filePath = Constant.DOC_PATH;
                                     break;
+                                case "dir":
+                                    filePath = Constant.DIR_PATH;
+                                    break;
                                 case "other":
                                     filePath = Constant.OTHER_PATH;
                                     break;

@@ -29,6 +29,7 @@ import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.chat.adapter.FriendAdapter;
 import com.jidiankuaichuan.android.chat.model.Friend;
 import com.jidiankuaichuan.android.ui.DeviceListActivity;
+import com.jidiankuaichuan.android.ui.dialog.MyDialog;
 import com.jidiankuaichuan.android.utils.BlueToothUtils;
 import com.jidiankuaichuan.android.utils.MyLog;
 import com.jidiankuaichuan.android.utils.ToastUtil;
@@ -49,6 +50,8 @@ public class FriendListActivity extends AppCompatActivity {
     private List<Friend> friendList = new ArrayList<>();
 
     private LocalBroadcastManager localBroadcastManager;
+
+    private int friendTouched = -1;
 
     private BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -100,7 +103,6 @@ public class FriendListActivity extends AppCompatActivity {
                         int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF);
                         switch (state) {
                             case BluetoothAdapter.STATE_OFF:
-                                //TODO clear resources
                                 finish();
                                 break;
                         }
@@ -176,6 +178,9 @@ public class FriendListActivity extends AppCompatActivity {
                     //send local broadcast
                     Intent intent = new Intent("FRIEND_CONNECTED");
                     localBroadcastManager.sendBroadcast(intent);
+
+                    // send first message
+                    BlueToothChatControler.getInstance().sendMessage(Constant.deviceName + "已进入聊天");
                     break;
                 case Constant.MSG_GOT_DATA:
                     String data = (String) msg.obj;
@@ -244,6 +249,7 @@ public class FriendListActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        MyLog.e(TAG, "onStart()");
         super.onStart();
         //register broadcast
         IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -257,6 +263,12 @@ public class FriendListActivity extends AppCompatActivity {
         registerReceiver(myBroadcastReceiver, filter4);
         registerReceiver(myBroadcastReceiver, filter5);
 
+        // update list
+        if (friendTouched != -1) {
+            friendList.get(friendTouched).setMessage("");
+            friendAdapter.notifyDataSetChanged();
+            friendTouched = -1;
+        }
     }
 
     @Override
@@ -341,9 +353,10 @@ public class FriendListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Friend friend = friendList.get(position);
                 Intent intent = new Intent(FriendListActivity.this, ChatActivity.class);
-                intent.putExtra("friendName", friend.getDevice().getName());
-                intent.putExtra("friendAddress", friend.getDevice().getAddress());
+                intent.putExtra("friend_name", friend.getDevice().getName());
+                intent.putExtra("friend_address", friend.getDevice().getAddress());
                 startActivity(intent);
+                friendTouched = position;
             }
         });
     }
@@ -380,6 +393,14 @@ public class FriendListActivity extends AppCompatActivity {
                 } else {
                     ToastUtil.s("正在刷新");
                 }
+                break;
+            case R.id.my_address_2:
+                MyDialog dialog = new MyDialog.Builder(this)
+                        .setTitle(BlueToothUtils.getInstance().getAddress(this))
+                        .setNoTextGone()
+                        .setEmptyYesText()
+                        .create();
+                dialog.show();
                 break;
         }
         return super.onOptionsItemSelected(item);

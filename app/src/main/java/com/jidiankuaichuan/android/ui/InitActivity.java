@@ -24,6 +24,8 @@ import com.jidiankuaichuan.android.utils.SDCardHelper;
 
 import org.litepal.LitePal;
 
+import java.io.File;
+
 public class InitActivity extends AppCompatActivity {
 
     private static final String TAG = "InitActivity";
@@ -42,13 +44,14 @@ public class InitActivity extends AppCompatActivity {
         String deviceName = pref.getString("device_name", "");
         if ("".equals(deviceName)) {
             //创建文件存放路径
-            if (SDCardHelper.isSDCardMounted()) {
+            if (FileUtils.isSDCardAvailable()) {
                 FileUtils.mkdirs(Constant.APK_PATH);
                 FileUtils.mkdirs(Constant.MUSIC_PATH);
                 FileUtils.mkdirs(Constant.PICTURE_PATH);
                 FileUtils.mkdirs(Constant.VIDEO_PATH);
                 FileUtils.mkdirs(Constant.OTHER_PATH);
                 FileUtils.mkdirs(Constant.DOC_PATH);
+                FileUtils.mkdirs(Constant.DIR_PATH);
             }
             //初始化数据库
             LitePal.getDatabase();

@@ -76,7 +76,6 @@ public class FileManager {
                 int duration = c.getInt(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));// 时长
                 int time = c.getInt(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));// 歌曲的id
                 // int albumId = c.getInt(c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
-
                 Music music = new Music(name, path, album, artist, size, duration);
                 musics.add(music);
             }

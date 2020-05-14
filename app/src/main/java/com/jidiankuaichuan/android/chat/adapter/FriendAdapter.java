@@ -24,9 +24,14 @@ import com.jidiankuaichuan.android.R;
 import com.jidiankuaichuan.android.chat.BlueToothChatControler;
 import com.jidiankuaichuan.android.chat.FriendListActivity;
 import com.jidiankuaichuan.android.chat.model.Friend;
+import com.jidiankuaichuan.android.chat.model.Msg;
 import com.jidiankuaichuan.android.ui.Adapter.MusicAdapter;
+import com.jidiankuaichuan.android.ui.dialog.MyDialog;
 import com.jidiankuaichuan.android.utils.BlueToothUtils;
+import com.jidiankuaichuan.android.utils.MyLog;
+import com.jidiankuaichuan.android.utils.ToastUtil;
 
+import org.litepal.LitePal;
 import org.w3c.dom.Text;
 
 import java.util.List;
@@ -39,8 +44,6 @@ public class FriendAdapter extends ArrayAdapter<Friend> {
     private List<Friend> friendList;
 
     private Handler handler;
-
-//    private PopupMenu popupMenu;
 
     private Listener listener;
 
@@ -79,13 +82,25 @@ public class FriendAdapter extends ArrayAdapter<Friend> {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
-        viewHolder.friendName.setText(friend.getDevice().getName());
+        String name = friend.getDevice().getName();
+        if (name.length() > 8) {
+            name = name.substring(0, 8) + "..";
+        }
+        viewHolder.friendName.setText(name);
         viewHolder.friendAddress.setText(friend.getDevice().getAddress());
         viewHolder.state.setText(friend.getState());
         //handle message
         String message = friend.getMessage();
-        if (message.length() > 15) {
-            message = message.substring(0, 15) + "..";
+        if (message == null || "".equals(message)) {
+            Msg msg = LitePal.where("address = ?", friend.getDevice().getAddress()).findLast(Msg.class);
+            if (msg == null) {
+                message = "";
+            } else {
+                message = msg.getContent();
+            }
+        }
+        if (message.length() > 12) {
+            message = message.substring(0, 12) + "..";
         }
         viewHolder.message.setText(message);
 
@@ -113,20 +128,36 @@ public class FriendAdapter extends ArrayAdapter<Friend> {
         popupMenu.getMenuInflater().inflate(R.menu.menu_delete_friend, popupMenu.getMenu());
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override public boolean onMenuItemClick(MenuItem item) {
-                try {
-                    BlueToothUtils.getInstance().removeBond(friend.getDevice().getClass(), friend.getDevice());
-                    if (friend.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
-                        //remove bond success
-                        if (listener != null) {
-                            listener.onRemove(friend);
-                        }
-                    } else {
-                        //remove bond failed
-                        getContext().startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                MyDialog dialog = new MyDialog.Builder(getContext())
+                        .setTitle("是否删除该好友")
+                        .setNoText()
+                        .setYesText(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
+                                    if (friend.getState().equals("已连接")) {
+                                        ToastUtil.s("请先断开连接");
+                                        return;
+                                    }
+                                    BlueToothUtils.getInstance().removeBond(friend.getDevice().getClass(), friend.getDevice());
+                                    if (friend.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
+                                        MyLog.e(TAG, "delete friend");
+                                        //remove bond success
+                                        if (listener != null) {
+                                            listener.onRemove(friend);
+                                        }
+                                        // delete msg record
+                                        LitePal.deleteAll(Msg.class, "address = ?", friend.getDevice().getAddress());
+                                    } else {
+                                        //remove bond failed
+                                        getContext().startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).create();
+                dialog.show();
                 return true;
             }
         });

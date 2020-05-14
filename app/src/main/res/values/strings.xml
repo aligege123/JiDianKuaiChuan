@@ -15,4 +15,6 @@
     <string name="bediscover">BeDiscover</string>
     <string name="mac_address">MAC address</string>
     <string name="file_record">file record</string>
+    <string name="mac">我的MAC</string>
+    <string name="delete_msg">删除记录</string>
 </resources>

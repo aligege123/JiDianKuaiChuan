@@ -51,7 +51,7 @@ public class NearbyAdapter extends ArrayAdapter<BluetoothDevice> {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
-        viewHolder.name.setText(device.getName().substring(4));
+        viewHolder.name.setText(device.getName());
         viewHolder.address.setText(device.getAddress());
         viewHolder.add.setOnClickListener(new View.OnClickListener() {
             @Override

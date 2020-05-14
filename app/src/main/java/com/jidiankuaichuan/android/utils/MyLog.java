@@ -16,7 +16,7 @@ public class MyLog {
 
     public static final int NOTHING = 6;
 
-    public static int level = DEBUG;
+    public static int level = NOTHING;
 
     public static void v(String tag, String msg) {
         if (level <= VERBOSE) {

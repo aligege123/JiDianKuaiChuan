@@ -71,8 +71,10 @@ public class DirAdapter extends ArrayAdapter<File> {
             public void onClick(View v) {
                 MyLog.e(TAG, file.getParent());
                 File zipFile = null;
+                boolean isDir = false;
                 try {
                     if (file.isDirectory()) {
+                        isDir = true;
                         ZipUtils.zip(file.getAbsolutePath(), file.getParent() + "/" + file.getName() + ".zip");
                         zipFile = new File(file.getAbsolutePath() + ".zip");
                     } else {
@@ -88,7 +90,11 @@ public class DirAdapter extends ArrayAdapter<File> {
                         FileBase fileBase = new FileBase();
                         fileBase.setName(zipFile.getName());
                         fileBase.setPath(zipFile.getAbsolutePath());
-                        fileBase.setType("other");
+                        if (!isDir) {
+                            fileBase.setType("other");
+                        } else {
+                            fileBase.setType("dir");
+                        }
                         fileBase.setSize(zipFile.length());
                         onClickListener.onClick(fileBase);
                     }

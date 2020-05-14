@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <litepal>
-    <dbname value="FileRecordStore"></dbname>
+    <dbname value="RecordStore"></dbname>
     <version value="2"></version>
     <list>
         <mapping class="com.jidiankuaichuan.android.data.FileBase"></mapping>

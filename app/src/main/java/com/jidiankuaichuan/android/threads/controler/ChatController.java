@@ -25,7 +25,7 @@ public class ChatController {
 
     private List<FileBase> fileSendList = new ArrayList<>();
 
-    private List<FileBase> filesToBeSendList = new ArrayList<>();
+//    private List<FileBase> filesToBeSendList = new ArrayList<>();
 
     private int fileSendCount = 0;
 
@@ -141,14 +141,14 @@ public class ChatController {
     }
 
     //保存要发送的文件
-    public void saveFilesToBeSend(List<FileBase> fileBaseList) {
-        for (FileBase f : fileBaseList) {
-            f.setId(fileSendCount);
-            ++fileSendCount;
-        }
-        filesToBeSendList.addAll(fileBaseList);
-        fileSendList.addAll(fileBaseList);
-    }
+//    public void saveFilesToBeSend(List<FileBase> fileBaseList) {
+//        for (FileBase f : fileBaseList) {
+//            f.setId(fileSendCount);
+//            ++fileSendCount;
+//        }
+//        filesToBeSendList.addAll(fileBaseList);
+//        fileSendList.addAll(fileBaseList);
+//    }
 
 
     public List<FileBase> getFileSendList() {

@@ -32,8 +32,6 @@ public class Constant {
 
     public static final int MSG_DEVICEINFO = 6;
 
-    public static final int FLAG_CLOSE = 7;
-
     public static final int MSG_RECV_ERROR = 8;
 
     public static final String APK_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/app/";
@@ -47,6 +45,8 @@ public class Constant {
     public static final String DOC_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/doc/";
 
     public static final String OTHER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/files/";
+
+    public static final String DIR_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/小互传/dir/";
 
     public static SendRecordFragment sendRecordFragment = new SendRecordFragment();
 

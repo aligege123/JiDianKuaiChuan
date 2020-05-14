@@ -73,6 +73,7 @@ public class ChatThread extends Thread {
                     }
                     //callback to ChatActivity, onReceive()
                     if (listener != null) {
+                        MyLog.e(TAG, "onReceive()");
                         listener.onReceive(data);
                     }
                     //save message

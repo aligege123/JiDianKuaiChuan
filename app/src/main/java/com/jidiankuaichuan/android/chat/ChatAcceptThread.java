@@ -64,6 +64,8 @@ public class ChatAcceptThread extends Thread{
             }
 
             if(socket != null) {
+                close();
+                manageConnectSocket(socket);
                 //send message
                 if (mHandler != null) {
                     Bundle bundle = new Bundle();
@@ -74,8 +76,6 @@ public class ChatAcceptThread extends Thread{
                     message.what = Constant.MSG_CONNECT_SUCCESS;
                     mHandler.sendMessage(message);
                 }
-                close();
-                manageConnectSocket(socket);
                 break;
             }
         }

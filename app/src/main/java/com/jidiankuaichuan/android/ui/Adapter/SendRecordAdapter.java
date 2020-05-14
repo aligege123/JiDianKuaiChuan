@@ -100,8 +100,6 @@ public class SendRecordAdapter extends BaseAdapter {
                     }
                 }
                 sendThreads.remove(canceledThread);
-//                ChatControler.getInstance().getSendThreadList().get(position).stopSend();
-//                ChatControler.getInstance().getSendThreadList().remove(position);
                 fileBaseList.remove(position);
                 notifyDataSetChanged();
             }

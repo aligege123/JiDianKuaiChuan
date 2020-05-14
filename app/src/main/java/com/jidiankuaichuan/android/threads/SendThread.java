@@ -38,7 +38,7 @@ public class SendThread extends Thread{
     /**
      * 判断此线程是否完毕
      */
-    private boolean mIsFinished = false;
+    private boolean mIsSending = false;
 
     /**
      * 设置未执行的线程不执行的标识
@@ -66,10 +66,9 @@ public class SendThread extends Thread{
                 MyLog.e(TAG, mFileBase.getName() + "取消发送");
                 return;
             }
+            mIsSending = true;
             try {
                 //时间
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                mFileBase.setTime(df.format(new Date()));
                 mFileBase.setAction("SEND");
 
                 FileInputStream in = new FileInputStream(new File(mFileBase.getPath()));
@@ -78,7 +77,6 @@ public class SendThread extends Thread{
                 byte[] headBytes = FileBase.toJsonStr(mFileBase).getBytes("UTF-8");
                 out.writeInt(headBytes.length);
                 out.write(headBytes);
-//                out.writeUTF(FileBase.toJsonStr(mFileBase));
 
                 int id = mFileBase.getId();
 
@@ -116,7 +114,7 @@ public class SendThread extends Thread{
                     }
                 }
                 out.flush();
-                mIsFinished = true;
+                mIsSending = false;
             } catch (IOException e) {
                 if (onSendListener != null) {
                     MyLog.e(TAG, "send thread onFailure() exception");
@@ -127,10 +125,12 @@ public class SendThread extends Thread{
         }
         if (mFileBase.getProgress() > 0) {
             //save record only when progress > 0
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            mFileBase.setTime(df.format(new Date()));
             mFileBase.save();
         }
         //delete zip file
-        if (mFileBase.getName().endsWith(".zip")) {
+        if (mFileBase.getName().endsWith(".zip") && mFileBase.getType().equals("dir")) {
             File file = new File(mFileBase.getPath());
             if (file.exists()) {
                 //noinspection ResultOfMethodCallIgnored
@@ -169,7 +169,7 @@ public class SendThread extends Thread{
      * @return
      */
     public boolean isRunning(){
-        return !mIsFinished;
+        return mIsSending && !mIsStop;
     }
 
     /**
